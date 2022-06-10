@@ -4,10 +4,12 @@ package id.holigo.services.holigotrainservice.web.mappers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import id.holigo.services.holigotrainservice.domain.TrainAvailability;
+import id.holigo.services.holigotrainservice.domain.TrainFinalFareTrip;
 import id.holigo.services.holigotrainservice.web.model.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.Time;
 import java.time.LocalDate;
@@ -80,5 +82,25 @@ public abstract class TrainAvailabilityMapperDecorator implements TrainAvailabil
             throw new RuntimeException(e);
         }
         return trainAvailability;
+    }
+
+    @Override
+    public TrainFinalFareTrip trainAvailabilityToTrainFinalFareTrip(TrainAvailability trainAvailability) {
+        TrainFinalFareTrip trainFinalFareTrip = trainAvailabilityMapper.trainAvailabilityToTrainFinalFareTrip(trainAvailability);
+        trainFinalFareTrip.setFareAmount(BigDecimal.valueOf(0.00));
+        trainFinalFareTrip.setAdminAmount(BigDecimal.valueOf(0.00));
+        trainFinalFareTrip.setNtaAmount(BigDecimal.valueOf(0.00));
+        trainFinalFareTrip.setNraAmount(BigDecimal.valueOf(0.00));
+        trainFinalFareTrip.setCpAmount(BigDecimal.valueOf(0.00));
+        trainFinalFareTrip.setIpAmount(BigDecimal.valueOf(0.00));
+        trainFinalFareTrip.setMpAmount(BigDecimal.valueOf(0.00));
+        trainFinalFareTrip.setHpAmount(BigDecimal.valueOf(0.00));
+        trainFinalFareTrip.setHvAmount(BigDecimal.valueOf(0.00));
+        trainFinalFareTrip.setPrAmount(BigDecimal.valueOf(0.00));
+        trainFinalFareTrip.setIpcAmount(BigDecimal.valueOf(0.00));
+        trainFinalFareTrip.setHpcAmount(BigDecimal.valueOf(0.00));
+        trainFinalFareTrip.setPrcAmount(BigDecimal.valueOf(0.00));
+        trainFinalFareTrip.setLossAmount(BigDecimal.valueOf(0.00));
+        return trainFinalFareTrip;
     }
 }

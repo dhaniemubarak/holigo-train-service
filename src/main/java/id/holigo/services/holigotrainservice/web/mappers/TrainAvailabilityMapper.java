@@ -1,6 +1,7 @@
 package id.holigo.services.holigotrainservice.web.mappers;
 
 import id.holigo.services.holigotrainservice.domain.TrainAvailability;
+import id.holigo.services.holigotrainservice.domain.TrainFinalFareTrip;
 import id.holigo.services.holigotrainservice.web.model.*;
 import org.mapstruct.DecoratedWith;
 import org.mapstruct.Mapper;
@@ -33,4 +34,22 @@ public interface TrainAvailabilityMapper {
     @Mapping(target = "destination", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     TrainAvailability trainAvailabilityDtoToTrainAvailability(TrainAvailabilityDto trainAvailabilityDto);
+
+    @Mapping(target = "supplierId", ignore = true)
+    @Mapping(target = "prcAmount", ignore = true)
+    @Mapping(target = "prAmount", ignore = true)
+    @Mapping(target = "ntaAmount", ignore = true)
+    @Mapping(target = "nraAmount", ignore = true)
+    @Mapping(target = "mpAmount", ignore = true)
+    @Mapping(target = "lossAmount", ignore = true)
+    @Mapping(target = "ipcAmount", ignore = true)
+    @Mapping(target = "ipAmount", ignore = true)
+    @Mapping(target = "hvAmount", ignore = true)
+    @Mapping(target = "hpcAmount", ignore = true)
+    @Mapping(target = "hpAmount", ignore = true)
+    @Mapping(target = "finalFare", ignore = true)
+    @Mapping(target = "fareAmount", ignore = true)
+    @Mapping(target = "cpAmount", ignore = true)
+    @Mapping(target = "adminAmount", ignore = true)
+    TrainFinalFareTrip trainAvailabilityToTrainFinalFareTrip(TrainAvailability trainAvailability);
 }

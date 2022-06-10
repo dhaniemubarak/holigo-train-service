@@ -1,21 +1,17 @@
 package id.holigo.services.holigotrainservice.web.mappers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import id.holigo.services.common.model.FareDetailDto;
 import id.holigo.services.common.model.FareDto;
-import id.holigo.services.holigotrainservice.services.fare.FareService;
+import id.holigo.services.holigotrainservice.components.Fare;
 import id.holigo.services.holigotrainservice.web.model.RetrossFareDto;
 import id.holigo.services.holigotrainservice.web.model.TrainAvailabilityFareDto;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.jms.JMSException;
-import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 public abstract class TrainAvailabilityFareMapperDecorator implements TrainAvailabilityFareMapper {
 
     @Autowired
-    private FareService fareService;
+    private Fare fare;
 
     private TrainAvailabilityFareMapper trainAvailabilityFareMapper;
 
@@ -30,17 +26,7 @@ public abstract class TrainAvailabilityFareMapperDecorator implements TrainAvail
         trainAvailabilityFareDto.setPriceAdult(trainAvailabilityFareDto.getPriceAdult().setScale(2, RoundingMode.UP));
         trainAvailabilityFareDto.setPriceChild(trainAvailabilityFareDto.getPriceChild().setScale(2, RoundingMode.UP));
         trainAvailabilityFareDto.setPriceInfant(trainAvailabilityFareDto.getPriceInfant().setScale(2, RoundingMode.UP));
-        FareDetailDto fareDetailDto = FareDetailDto.builder()
-                .userId(userId)
-                .productId(3)
-                .nraAmount(BigDecimal.valueOf(5000.00))
-                .ntaAmount(BigDecimal.valueOf(0.00)).build();
-        FareDto fareDto;
-        try {
-            fareDto = fareService.getFareDetail(fareDetailDto);
-        } catch (JMSException | JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+        FareDto fareDto = fare.getFare(userId);
         assert fareDto != null;
         trainAvailabilityFareDto.setHpAmount(fareDto.getHpAmount());
         if (retrossFareDto.getSelectedIdDep() != null) {
