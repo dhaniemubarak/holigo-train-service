@@ -20,7 +20,7 @@ public class TrainFareController {
 
     private TrainService trainService;
 
-    public static final String PATH = "/api/v1/airlines/fares";
+    public static final String PATH = "/api/v1/train/fares";
 
     @Autowired
     public void setTrainService(TrainService trainService) {
