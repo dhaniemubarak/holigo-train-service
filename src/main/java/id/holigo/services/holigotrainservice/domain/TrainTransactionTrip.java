@@ -1,7 +1,9 @@
 package id.holigo.services.holigotrainservice.domain;
 
-import id.holigo.services.holigotrainservice.config.FeeConfig;
-import lombok.*;
+import id.holigo.services.common.model.OrderStatusEnum;
+import id.holigo.services.common.model.PaymentStatusEnum;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
@@ -9,6 +11,8 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.sql.Date;
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,27 +20,60 @@ import java.util.UUID;
 
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-@Entity(name = "train_final_fares")
-public class TrainFinalFare {
+@Entity(name = "train_transaction_trips")
+public class TrainTransactionTrip {
 
     @Id
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     @Column(length = 36, columnDefinition = "varchar(36)", updatable = false, nullable = false)
     @Type(type = "org.hibernate.type.UUIDCharType")
     private UUID id;
 
-    @OneToOne
-    private Inquiry inquiry;
+    @ManyToOne
+    private TrainTransaction trainTransaction;
 
-    private Long userId;
+    @OneToMany(mappedBy = "trip")
+    private List<TrainTransactionTripPassenger> passengers = new ArrayList<>();
 
-    private String indexNote;
+    @Enumerated(EnumType.STRING)
+    private PaymentStatusEnum paymentStatus;
 
-    private String valueNote;
+    @Enumerated(EnumType.STRING)
+    private OrderStatusEnum orderStatus;
 
-    private Boolean isBookable;
+    @Column(length = 50, columnDefinition = "varchar(50)")
+    private String trainName;
+
+    @Column(length = 20, columnDefinition = "varchar(20)")
+    private String trainNumber;
+
+    @Column(length = 4, columnDefinition = "varchar(4)", nullable = false)
+    private String originStationId;
+
+    @Transient
+    private Station origin;
+
+    private String destinationStationId;
+
+    @Transient
+    private Station destination;
+
+    private Date departureDate;
+
+    private Time departureTime;
+
+    private Date arrivalDate;
+
+    private Time arrivalTime;
+
+    private String imageUrl;
+
+    @Column(length = 20, columnDefinition = "varchar(20)")
+    private String trainClass;
+
+    @Column(length = 20, columnDefinition = "varchar(20)")
+    private String trainSubClass;
 
     @Column(precision = 10, scale = 2, nullable = false)
     private BigDecimal fareAmount;
@@ -80,17 +117,20 @@ public class TrainFinalFare {
     @Column(columnDefinition = "decimal(10,2) default 0")
     private BigDecimal lossAmount;
 
+    @Column(length = 50, columnDefinition = "varchar(50)")
+    private String supplierId;
+
+    @Column(length = 20, columnDefinition = "varchar(20)")
+    private String bookCode;
+
     @CreationTimestamp
     private Timestamp createdAt;
 
     @UpdateTimestamp
     private Timestamp updatedAt;
 
-    @OneToMany(mappedBy = "finalFare", cascade = CascadeType.ALL)
-    private List<TrainFinalFareTrip> trips = new ArrayList<>();
-
-    public void addToTrips(TrainFinalFareTrip trainFinalFareTrip) {
-        trainFinalFareTrip.setFinalFare(this);
-        this.trips.add(trainFinalFareTrip);
+    public void addToPassengers(TrainTransactionTripPassenger trainTransactionTripPassenger) {
+        passengers.add(trainTransactionTripPassenger);
+        trainTransactionTripPassenger.setTrip(this);
     }
 }

@@ -6,6 +6,7 @@ import id.holigo.services.common.model.FareDto;
 import id.holigo.services.common.model.TripType;
 import id.holigo.services.holigotrainservice.components.Fare;
 import id.holigo.services.holigotrainservice.config.FeeConfig;
+import id.holigo.services.holigotrainservice.domain.Inquiry;
 import id.holigo.services.holigotrainservice.domain.TrainAvailability;
 import id.holigo.services.holigotrainservice.domain.TrainFinalFare;
 import id.holigo.services.holigotrainservice.domain.TrainFinalFareTrip;
@@ -13,6 +14,7 @@ import id.holigo.services.holigotrainservice.repositories.TrainAvailabilityRepos
 import id.holigo.services.holigotrainservice.repositories.TrainFinalFareRepository;
 import id.holigo.services.holigotrainservice.services.retross.RetrossTrainService;
 import id.holigo.services.holigotrainservice.web.exceptions.FinalFareBadRequestException;
+import id.holigo.services.holigotrainservice.web.mappers.InquiryMapper;
 import id.holigo.services.holigotrainservice.web.mappers.TrainAvailabilityMapper;
 import id.holigo.services.holigotrainservice.web.model.*;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +38,8 @@ public class TrainServiceImpl implements TrainService {
     private TrainAvailabilityMapper trainAvailabilityMapper;
 
     private ObjectMapper objectMapper;
+
+    private InquiryMapper inquiryMapper;
 
     @Autowired
     public void setRetrossTrainService(RetrossTrainService retrossTrainService) {
@@ -65,6 +69,11 @@ public class TrainServiceImpl implements TrainService {
     @Autowired
     public void setTrainFinalFareRepository(TrainFinalFareRepository trainFinalFareRepository) {
         this.trainFinalFareRepository = trainFinalFareRepository;
+    }
+
+    @Autowired
+    public void setInquiryMapper(InquiryMapper inquiryMapper) {
+        this.inquiryMapper = inquiryMapper;
     }
 
     @Override
@@ -108,6 +117,7 @@ public class TrainServiceImpl implements TrainService {
         FareDto fareDto = fare.getFare(userId);
         TrainFinalFare trainFinalFare = new TrainFinalFare();
         trainFinalFare.setId(UUID.randomUUID());
+        trainFinalFare.setInquiry(inquiryMapper.inquiryDtoToInquiry(requestFinalFareDto.getTrips().get(0).getInquiry()));
         trainFinalFare.setUserId(userId);
         trainFinalFare.setIsBookable(true);
         trainFinalFare.setNtaAmount(FeeConfig.ADMIN_AMOUNT.subtract(FeeConfig.NRA_AMOUNT));

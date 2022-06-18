@@ -17,7 +17,6 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Slf4j
 public abstract class TrainAvailabilityMapperDecorator implements TrainAvailabilityMapper {
@@ -62,14 +61,20 @@ public abstract class TrainAvailabilityMapperDecorator implements TrainAvailabil
     public ListAvailabilityDto retrossResponseScheduleDtoToListAvailabilityDto(RetrossResponseScheduleDto retrossResponseScheduleDto, Long userId) {
         List<TrainAvailabilityDto> trainAvailabilityDtoList = new ArrayList<>();
         for (int i = 0; i < retrossResponseScheduleDto.getSchedule().getDepartures().size(); i++) {
-            log.info("For loop -> {}", i);
             RetrossDepartureDto retrossDepartureDto = retrossResponseScheduleDto.getSchedule().getDepartures().get(i);
-            retrossDepartureDto.getFares().forEach(fare -> {
-                trainAvailabilityDtoList.add(retrossDepartureDtoToTrainAvailabilityDto(retrossDepartureDto, fare, userId));
-            });
+            retrossDepartureDto.getFares().forEach(fare -> trainAvailabilityDtoList.add(retrossDepartureDtoToTrainAvailabilityDto(retrossDepartureDto, fare, userId)));
         }
         ListAvailabilityDto listAvailabilityDto = new ListAvailabilityDto();
         listAvailabilityDto.setDepartures(trainAvailabilityDtoList);
+
+        if (retrossResponseScheduleDto.getSchedule().getReturns() != null) {
+            List<TrainAvailabilityDto> trainAvailabilityReturnDtoList = new ArrayList<>();
+            for (int i = 0; i < retrossResponseScheduleDto.getSchedule().getReturns().size(); i++) {
+                RetrossDepartureDto retrossDepartureDto = retrossResponseScheduleDto.getSchedule().getReturns().get(i);
+                retrossDepartureDto.getFares().forEach(fare -> trainAvailabilityReturnDtoList.add(retrossDepartureDtoToTrainAvailabilityDto(retrossDepartureDto, fare, userId)));
+            }
+            listAvailabilityDto.setReturns(trainAvailabilityReturnDtoList);
+        }
         return listAvailabilityDto;
     }
 

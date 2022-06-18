@@ -1,9 +1,8 @@
 package id.holigo.services.holigotrainservice.domain;
 
-import id.holigo.services.common.model.TripType;
-import lombok.AllArgsConstructor;
+import id.holigo.services.common.model.PassengerTitle;
+import id.holigo.services.common.model.PassengerType;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
@@ -11,16 +10,13 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
-import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.UUID;
 
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Entity(name = "inquiries")
-public class Inquiry {
+@Entity(name = "passengers")
+public class Passenger {
 
     @Id
     @GeneratedValue(generator = "UUID")
@@ -29,32 +25,26 @@ public class Inquiry {
     @Type(type = "org.hibernate.type.UUIDCharType")
     private UUID id;
 
-
-    @Column(columnDefinition = "varchar(10)")
-    private String originStationId;
-
-
-    @Column(columnDefinition = "varchar(10)")
-    private String destinationStationId;
+    @Enumerated(EnumType.STRING)
+    private PassengerType type;
 
     @Enumerated(EnumType.STRING)
-    private TripType tripType;
+    private PassengerTitle title;
 
-    private Date departureDate;
+    private String name;
 
-    private Date returnDate;
+    @Column(length = 20, columnDefinition = "varchar(20)")
+    private String phoneNumber;
 
-    @Column(columnDefinition = "tinyint(1)")
-    private Integer adultAmount;
+    @OneToOne(cascade = CascadeType.ALL)
+    private IdentityCard identityCard;
 
-    @Column(columnDefinition = "tinyint(1) default 0")
-    private Integer childAmount;
-
-    @Column(columnDefinition = "tinyint(1)")
-    private Integer infantAmount;
+    @OneToOne(cascade = CascadeType.ALL)
+    private Passport passport;
 
     @CreationTimestamp
     private Timestamp createdAt;
+
     @UpdateTimestamp
     private Timestamp updatedAt;
 }

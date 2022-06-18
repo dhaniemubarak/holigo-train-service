@@ -11,8 +11,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @FeignClient(name = "retross-train", url = "http://ws.retross.com")
 public interface RetrossTrainServiceFeignClient {
 
-    public static final String GET_SCHEDULE = "/kereta/kai/";
+    String GET_SCHEDULE = "/kereta/kai/";
 
     @RequestMapping(method = RequestMethod.POST, value = GET_SCHEDULE)
     ResponseEntity<String> getSchedule(@RequestBody RetrossRequestScheduleDto retrossRequestScheduleDto);
+
+    @RequestMapping(method = RequestMethod.POST, value = GET_SCHEDULE)
+    ResponseEntity<String> book(@RequestBody String build);
 }

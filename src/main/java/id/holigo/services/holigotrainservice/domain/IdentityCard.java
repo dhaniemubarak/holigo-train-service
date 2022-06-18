@@ -1,6 +1,5 @@
 package id.holigo.services.holigotrainservice.domain;
 
-import id.holigo.services.common.model.TripType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,7 +10,6 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
-import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.UUID;
 
@@ -19,9 +17,8 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name = "inquiries")
-public class Inquiry {
-
+@Entity(name = "identity_cards")
+public class IdentityCard {
     @Id
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
@@ -29,32 +26,14 @@ public class Inquiry {
     @Type(type = "org.hibernate.type.UUIDCharType")
     private UUID id;
 
+    @OneToOne
+    private Passenger passenger;
 
-    @Column(columnDefinition = "varchar(10)")
-    private String originStationId;
-
-
-    @Column(columnDefinition = "varchar(10)")
-    private String destinationStationId;
-
-    @Enumerated(EnumType.STRING)
-    private TripType tripType;
-
-    private Date departureDate;
-
-    private Date returnDate;
-
-    @Column(columnDefinition = "tinyint(1)")
-    private Integer adultAmount;
-
-    @Column(columnDefinition = "tinyint(1) default 0")
-    private Integer childAmount;
-
-    @Column(columnDefinition = "tinyint(1)")
-    private Integer infantAmount;
+    private String idCardNumber;
 
     @CreationTimestamp
     private Timestamp createdAt;
+
     @UpdateTimestamp
     private Timestamp updatedAt;
 }

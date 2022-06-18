@@ -32,5 +32,7 @@ public class InquiryDto implements Serializable {
 
     private Integer adultAmount;
 
+    private Integer childAmount;
+
     private Integer infantAmount;
 }
