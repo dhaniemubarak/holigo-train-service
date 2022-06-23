@@ -12,6 +12,8 @@ import org.mapstruct.Mapping;
 @DecoratedWith(TrainAvailabilityMapperDecorator.class)
 public interface TrainAvailabilityMapper {
 
+    @Mapping(target = "originStation", source = "inquiryDto.originStation")
+    @Mapping(target = "destinationStation", source = "inquiryDto.destinationStation")
     @Mapping(target = "fare", ignore = true)
     @Mapping(target = "imageUrl", ignore = true)
     @Mapping(target = "id", ignore = true)
@@ -21,12 +23,12 @@ public interface TrainAvailabilityMapper {
     @Mapping(target = "departureDate", ignore = true)
     @Mapping(target = "arrivalTime", ignore = true)
     @Mapping(target = "arrivalDate", ignore = true)
-    TrainAvailabilityDto retrossDepartureDtoToTrainAvailabilityDto(RetrossDepartureDto retrossDepartureDto, RetrossFareDto retrossFareDto, Long userId);
+    TrainAvailabilityDto retrossDepartureDtoToTrainAvailabilityDto(RetrossDepartureDto retrossDepartureDto, RetrossFareDto retrossFareDto, InquiryDto inquiryDto);
 
     @Mapping(target = "returns", ignore = true)
     @Mapping(target = "inquiry", ignore = true)
     @Mapping(target = "departures", ignore = true)
-    ListAvailabilityDto retrossResponseScheduleDtoToListAvailabilityDto(RetrossResponseScheduleDto retrossResponseScheduleDto, Long userId);
+    ListAvailabilityDto retrossResponseScheduleDtoToListAvailabilityDto(RetrossResponseScheduleDto retrossResponseScheduleDto, InquiryDto inquiryDto);
 
     @Mapping(target = "fare", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
@@ -35,6 +37,8 @@ public interface TrainAvailabilityMapper {
     @Mapping(target = "createdAt", ignore = true)
     TrainAvailability trainAvailabilityDtoToTrainAvailability(TrainAvailabilityDto trainAvailabilityDto);
 
+    @Mapping(target = "originStation",ignore = true)
+    @Mapping(target = "destinationStation",ignore = true)
     @Mapping(target = "supplierId", ignore = true)
     @Mapping(target = "prcAmount", ignore = true)
     @Mapping(target = "prAmount", ignore = true)

@@ -38,12 +38,16 @@ public class TrainFinalFareTrip {
     @Column(length = 20, columnDefinition = "varchar(20)")
     private String trainNumber;
 
-    @Column(length = 4, columnDefinition = "varchar(4)", nullable = false)
+    @ManyToOne
+    private Station originStation;
+
+    @ManyToOne
+    private Station destinationStation;
+
+    @Transient
     private String originStationId;
 
     @Transient
-    private Station origin;
-
     private String destinationStationId;
 
     @Transient

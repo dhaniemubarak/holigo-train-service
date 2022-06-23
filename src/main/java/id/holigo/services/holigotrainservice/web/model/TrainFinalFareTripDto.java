@@ -24,9 +24,9 @@ public class TrainFinalFareTripDto implements Serializable {
 
     private String trainSubClass;
 
-    private String originStationId;
+    private StationDto originStation;
 
-    private String destinationStationId;
+    private StationDto destinationStation;
 
     private Date departureDate;
 

@@ -20,6 +20,10 @@ public class InquiryDto implements Serializable {
 
     private Long userId;
 
+    private StationDto originStation;
+
+    private StationDto destinationStation;
+
     private String originStationId;
 
     private String destinationStationId;

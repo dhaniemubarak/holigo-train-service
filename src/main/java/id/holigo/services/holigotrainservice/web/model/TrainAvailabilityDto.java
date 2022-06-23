@@ -8,8 +8,6 @@ import lombok.Setter;
 import java.io.Serializable;
 import java.sql.Date;
 import java.sql.Time;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -26,7 +24,11 @@ public class TrainAvailabilityDto implements Serializable {
 
     private String originStationId;
 
+    private StationDto originStation;
+
     private String destinationStationId;
+
+    private StationDto destinationStation;
 
     private Date departureDate;
 

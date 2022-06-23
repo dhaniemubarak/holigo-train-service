@@ -92,7 +92,7 @@ public class TrainServiceImpl implements TrainService {
         if (retrossResponseScheduleDto.getSchedule() == null) {
             return null;
         }
-        ListAvailabilityDto listAvailabilityDto = trainAvailabilityMapper.retrossResponseScheduleDtoToListAvailabilityDto(retrossResponseScheduleDto, inquiryDto.getUserId());
+        ListAvailabilityDto listAvailabilityDto = trainAvailabilityMapper.retrossResponseScheduleDtoToListAvailabilityDto(retrossResponseScheduleDto, inquiryDto);
         listAvailabilityDto.setInquiry(inquiryDto);
         // Save availabilities
         saveAvailabilities(listAvailabilityDto);

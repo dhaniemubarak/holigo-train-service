@@ -16,6 +16,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Slf4j
@@ -43,8 +44,8 @@ public abstract class TrainAvailabilityMapperDecorator implements TrainAvailabil
     }
 
     @Override
-    public TrainAvailabilityDto retrossDepartureDtoToTrainAvailabilityDto(RetrossDepartureDto retrossDepartureDto, RetrossFareDto retrossFareDto, Long userId) {
-        TrainAvailabilityDto trainAvailabilityDto = trainAvailabilityMapper.retrossDepartureDtoToTrainAvailabilityDto(retrossDepartureDto, retrossFareDto, userId);
+    public TrainAvailabilityDto retrossDepartureDtoToTrainAvailabilityDto(RetrossDepartureDto retrossDepartureDto, RetrossFareDto retrossFareDto, InquiryDto inquiryDto) {
+        TrainAvailabilityDto trainAvailabilityDto = trainAvailabilityMapper.retrossDepartureDtoToTrainAvailabilityDto(retrossDepartureDto, retrossFareDto, inquiryDto);
         log.info("Decorator -------------");
         trainAvailabilityDto.setId(UUID.randomUUID());
         String TRAIN_IMAGE_URL = "https://ik.imagekit.io/holigo/transportasi/logo-kai-main_SyEqhgYKx.png";
@@ -53,16 +54,20 @@ public abstract class TrainAvailabilityMapperDecorator implements TrainAvailabil
         trainAvailabilityDto.setDepartureTime(Time.valueOf(LocalTime.parse(retrossDepartureDto.getEtd().substring(11, 16))));
         trainAvailabilityDto.setArrivalDate(Date.valueOf(LocalDate.parse(retrossDepartureDto.getEta().substring(0, 10))));
         trainAvailabilityDto.setArrivalTime(Time.valueOf(LocalTime.parse(retrossDepartureDto.getEta().substring(11, 16))));
-        trainAvailabilityDto.setFare(trainAvailabilityFareMapper.retrossFareDtoToTrainAvailabilityFareDto(retrossFareDto, userId));
+        trainAvailabilityDto.setFare(trainAvailabilityFareMapper.retrossFareDtoToTrainAvailabilityFareDto(retrossFareDto, inquiryDto.getUserId()));
+        if (!Objects.equals(trainAvailabilityDto.getOriginStation().getId(), trainAvailabilityDto.getOriginStationId())) {
+            trainAvailabilityDto.setOriginStation(inquiryDto.getDestinationStation());
+            trainAvailabilityDto.setDestinationStation(inquiryDto.getOriginStation());
+        }
         return trainAvailabilityDto;
     }
 
     @Override
-    public ListAvailabilityDto retrossResponseScheduleDtoToListAvailabilityDto(RetrossResponseScheduleDto retrossResponseScheduleDto, Long userId) {
+    public ListAvailabilityDto retrossResponseScheduleDtoToListAvailabilityDto(RetrossResponseScheduleDto retrossResponseScheduleDto, InquiryDto inquiryDto) {
         List<TrainAvailabilityDto> trainAvailabilityDtoList = new ArrayList<>();
         for (int i = 0; i < retrossResponseScheduleDto.getSchedule().getDepartures().size(); i++) {
             RetrossDepartureDto retrossDepartureDto = retrossResponseScheduleDto.getSchedule().getDepartures().get(i);
-            retrossDepartureDto.getFares().forEach(fare -> trainAvailabilityDtoList.add(retrossDepartureDtoToTrainAvailabilityDto(retrossDepartureDto, fare, userId)));
+            retrossDepartureDto.getFares().forEach(fare -> trainAvailabilityDtoList.add(retrossDepartureDtoToTrainAvailabilityDto(retrossDepartureDto, fare, inquiryDto)));
         }
         ListAvailabilityDto listAvailabilityDto = new ListAvailabilityDto();
         listAvailabilityDto.setDepartures(trainAvailabilityDtoList);
@@ -71,7 +76,7 @@ public abstract class TrainAvailabilityMapperDecorator implements TrainAvailabil
             List<TrainAvailabilityDto> trainAvailabilityReturnDtoList = new ArrayList<>();
             for (int i = 0; i < retrossResponseScheduleDto.getSchedule().getReturns().size(); i++) {
                 RetrossDepartureDto retrossDepartureDto = retrossResponseScheduleDto.getSchedule().getReturns().get(i);
-                retrossDepartureDto.getFares().forEach(fare -> trainAvailabilityReturnDtoList.add(retrossDepartureDtoToTrainAvailabilityDto(retrossDepartureDto, fare, userId)));
+                retrossDepartureDto.getFares().forEach(fare -> trainAvailabilityReturnDtoList.add(retrossDepartureDtoToTrainAvailabilityDto(retrossDepartureDto, fare, inquiryDto)));
             }
             listAvailabilityDto.setReturns(trainAvailabilityReturnDtoList);
         }

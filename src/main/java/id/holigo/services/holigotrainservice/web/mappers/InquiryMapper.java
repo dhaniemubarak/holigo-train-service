@@ -6,7 +6,7 @@ import id.holigo.services.holigotrainservice.web.model.RetrossRequestBookDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper
+@Mapper(uses = {StationMapper.class})
 public interface InquiryMapper {
 
     @Mapping(target = "updatedAt", ignore = true)

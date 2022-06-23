@@ -32,10 +32,6 @@ public class Passport {
     private UUID id;
     @Column(length = 50, columnDefinition = "varchar(50)")
     private String passportNumber;
-    private Date issueDate;
-    private Date expiryDate;
-    @Column(length = 50, columnDefinition = "varchar(50)")
-    private String issueCountry;
     @CreationTimestamp
     private Timestamp createdAt;
     @UpdateTimestamp

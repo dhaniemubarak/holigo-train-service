@@ -30,12 +30,20 @@ public class Inquiry {
     private UUID id;
 
 
+    @Transient
     @Column(columnDefinition = "varchar(10)")
     private String originStationId;
 
 
+    @Transient
     @Column(columnDefinition = "varchar(10)")
     private String destinationStationId;
+
+    @ManyToOne
+    private Station originStation;
+
+    @ManyToOne
+    private Station destinationStation;
 
     @Enumerated(EnumType.STRING)
     private TripType tripType;

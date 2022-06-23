@@ -16,7 +16,7 @@ import javax.jms.Message;
 
 @Slf4j
 @RequiredArgsConstructor
-@Service
+//@Service
 public class FareServiceImpl implements FareService {
 
     private JmsTemplate jmsTemplate;
@@ -34,7 +34,7 @@ public class FareServiceImpl implements FareService {
     }
 
     @Override
-    public FareDto getFareDetail(FareDetailDto fareDetailDto) throws JMSException, JsonProcessingException {
+    public FareDto getFareDetail(FareDetailDto fareDetailDto) {
         log.info("JMS getFareDetail is running...");
         log.info("fareDetailDto -> {}", fareDetailDto);
         Message message = jmsTemplate.sendAndReceive(JmsConfig.GET_DETAIL_FARE_PRODUCT, session -> {
@@ -49,6 +49,15 @@ public class FareServiceImpl implements FareService {
         });
 
         assert message != null;
-        return objectMapper.readValue(message.getBody(String.class), FareDto.class);
+        try {
+            log.info("fareDetailDto -> {}", message.getBody(String.class));
+        } catch (JMSException e) {
+            throw new RuntimeException(e);
+        }
+        try {
+            return objectMapper.readValue(message.getBody(String.class), FareDto.class);
+        } catch (JsonProcessingException | JMSException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

@@ -6,12 +6,16 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
-import java.sql.Date;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PassportDto implements Serializable {
-    private String passportNumber;
+public class StationDto implements Serializable {
+
+    private String id;
+
+    private String name;
+
+    private String city;
 }
