@@ -27,11 +27,7 @@ public class Fare {
                 .nraAmount(FeeConfig.NRA_AMOUNT)
                 .ntaAmount(BigDecimal.valueOf(0.00)).build();
         FareDto fareDto;
-        try {
-            fareDto = fareService.getFareDetail(fareDetailDto);
-        } catch (JMSException | JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+        fareDto = fareService.getFareDetail(fareDetailDto);
         return fareDto;
     }
 }
