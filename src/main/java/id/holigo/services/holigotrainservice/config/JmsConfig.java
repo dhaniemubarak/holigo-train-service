@@ -12,6 +12,8 @@ public class JmsConfig {
 
     public static final String GET_DETAIL_FARE_PRODUCT = "get-detail-fare-product";
 
+    public static final String CREATE_NEW_TRANSACTION = "create-new-transaction";
+
     @Bean
     public MessageConverter jacksonJmsMessageConverter(ObjectMapper objectMapper) {
         MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();

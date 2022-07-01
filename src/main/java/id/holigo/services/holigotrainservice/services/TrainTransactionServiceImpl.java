@@ -28,6 +28,8 @@ import java.util.Optional;
 @Service
 public class TrainTransactionServiceImpl implements TrainTransactionService {
 
+    private OrderStatusTripService orderStatusTripService;
+
     private TrainFinalFareRepository trainFinalFareRepository;
 
     private ContactPersonRepository contactPersonRepository;
@@ -113,6 +115,11 @@ public class TrainTransactionServiceImpl implements TrainTransactionService {
         this.retrossTrainService = retrossTrainService;
     }
 
+    @Autowired
+    public void setOrderStatusTripService(OrderStatusTripService orderStatusTripService) {
+        this.orderStatusTripService = orderStatusTripService;
+    }
+
     @Transactional
     @Override
     public TrainTransaction createTransaction(TrainBookDto trainBookDto, Long userId) {
@@ -165,6 +172,9 @@ public class TrainTransactionServiceImpl implements TrainTransactionService {
             trainTransactionTrip.addToPassengers(trainTransactionTripPassenger);
         }));
 
+        // create master transaction
+
+
         // Book to retross
         // Build request param
         RetrossRequestBookDto retrossRequestBookDto = inquiryMapper.inquiryToRetrossRequestBookDto(trainFinalFare.getInquiry());
@@ -182,9 +192,12 @@ public class TrainTransactionServiceImpl implements TrainTransactionService {
             throw new RuntimeException(e);
         }
 
-
         int tripCounter = 0;
         for (TrainTransactionTrip trainTransactionTrip : savedTrainTransactionTrip) {
+            if (retrossResponseBookDto.getError_code().equals("001")) {
+                orderStatusTripService.bookingFail(trainTransactionTrip.getId());
+                continue;
+            }
             int passengerCounter = 0;
             for (TrainTransactionTripPassenger trainTransactionTripPassenger : trainTransactionTrip.getPassengers()) {
                 log.info("Passenger counter -> {}", passengerCounter);
@@ -198,8 +211,8 @@ public class TrainTransactionServiceImpl implements TrainTransactionService {
             trainTransactionTrip.setBookCode(
                     (tripCounter == 0) ? retrossResponseBookDto.getBookCodeDeparture()
                             : retrossResponseBookDto.getBookCodeReturn());
-            trainTransactionTrip.setOrderStatus(OrderStatusEnum.BOOKED);
             trainTransactionTripRepository.save(trainTransactionTrip);
+            orderStatusTripService.bookingSuccess(trainTransactionTrip.getId());
             tripCounter++;
         }
 

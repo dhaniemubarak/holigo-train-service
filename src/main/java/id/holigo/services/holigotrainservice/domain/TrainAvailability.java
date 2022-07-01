@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -33,16 +32,11 @@ public class TrainAvailability {
     @Column(length = 20, columnDefinition = "varchar(20)")
     private String trainNumber;
 
-    @Column(length = 4, columnDefinition = "varchar(4)", nullable = false)
-    private String originStationId;
+    @ManyToOne
+    private Station originStation;
 
-    @Transient
-    private Station origin;
-
-    private String destinationStationId;
-
-    @Transient
-    private Station destination;
+    @ManyToOne
+    private Station destinationStation;
 
     private Date departureDate;
 

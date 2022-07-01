@@ -44,15 +44,6 @@ public class TrainFinalFareTrip {
     @ManyToOne
     private Station destinationStation;
 
-    @Transient
-    private String originStationId;
-
-    @Transient
-    private String destinationStationId;
-
-    @Transient
-    private Station destination;
-
     private Date departureDate;
 
     private Time departureTime;

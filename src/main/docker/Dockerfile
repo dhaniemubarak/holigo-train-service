@@ -7,7 +7,7 @@ FROM openjdk:17-alpine
 LABEL   PROJECT_NAME={project.artifactId} \
     PROJECT=${project.id}
 
-EXPOSE 8109
+EXPOSE 8118
 
 WORKDIR /application
 COPY --from=builder /application/dependencies/ ./
