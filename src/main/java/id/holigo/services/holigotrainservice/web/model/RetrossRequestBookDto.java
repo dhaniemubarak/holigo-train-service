@@ -18,29 +18,6 @@ import java.util.Map;
 @AllArgsConstructor
 public class RetrossRequestBookDto implements Serializable {
 
-    /**
-     * "rqid":"sSm4ajndIdanf2k274hKSNjshfjhqkej1nRTt",
-     * "mmid":"mastersip",
-     * "app":"transaction",
-     * "action":"booking",
-     * "cpname":"anton yuwono",
-     * "cpmail":"benmboys.barbershop@gmail.com",
-     * "cptlp":"6281338392009",
-     * "org":"ML",
-     * "des":"SLO",
-     * "trip":"R",
-     * "adt":1,
-     * "chd":0,
-     * "inf":0,
-     * "tgl_dep":"2022-06-18",
-     * "selectedIDdep":"4528763",
-     * "tgl_ret":"2022-06-19",
-     * "selectedIDret":"4528804",
-     * "nmadt_1":"Antonius Yuwana Pamuji Harjo",
-     * "idadt_1":"5171022903620002",
-     * "hpadt_1":"081338
-     */
-
     private String rqid;
     private String mmid;
     private String app;
