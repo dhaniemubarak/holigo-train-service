@@ -3,6 +3,7 @@ package id.holigo.services.holigotrainservice.services;
 import id.holigo.services.common.model.OrderStatusEnum;
 import id.holigo.services.holigotrainservice.domain.TrainTransactionTrip;
 import id.holigo.services.holigotrainservice.events.OrderStatusTripEvent;
+import id.holigo.services.holigotrainservice.interceptors.OrderStatusTripInterceptor;
 import id.holigo.services.holigotrainservice.repositories.TrainTransactionTripRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +43,13 @@ public class OrderStatusTripServiceImpl implements OrderStatusTripService {
     public StateMachine<OrderStatusEnum, OrderStatusTripEvent> bookingSuccess(UUID trainTransactionTrioId) {
         StateMachine<OrderStatusEnum, OrderStatusTripEvent> sm = build(trainTransactionTrioId);
         sendEvent(trainTransactionTrioId, sm, OrderStatusTripEvent.BOOK_SUCCESS);
+        return sm;
+    }
+
+    @Override
+    public StateMachine<OrderStatusEnum, OrderStatusTripEvent> processIssued(UUID trainTransactionId) {
+        StateMachine<OrderStatusEnum, OrderStatusTripEvent> sm = build(trainTransactionId);
+        sendEvent(trainTransactionId, sm, OrderStatusTripEvent.PROCESS_ISSUED);
         return sm;
     }
 

@@ -12,5 +12,7 @@ public interface OrderStatusTripService {
 
     StateMachine<OrderStatusEnum, OrderStatusTripEvent> bookingSuccess(UUID trainTransactionId);
 
+    StateMachine<OrderStatusEnum, OrderStatusTripEvent> processIssued(UUID trainTransactionId);
+
     StateMachine<OrderStatusEnum, OrderStatusTripEvent> cancelTransaction(UUID transactionId);
 }

@@ -69,10 +69,10 @@ public class RetrossTrainServiceImpl implements RetrossTrainService {
         retrossRequestBookDto.setAction(RETROSS_ACTION_BOOK);
         log.info("Request body -> {}", objectMapper.writeValueAsString(retrossRequestBookDto.build()));
         RetrossResponseBookDto retrossResponseBookDto;
-//        ResponseEntity<String> responseEntity = retrossTrainServiceFeignClient.book(retrossRequestBookDto.build().toString());
-//        retrossResponseBookDto = objectMapper.readValue(responseEntity.getBody(), RetrossResponseBookDto.class);
-        String dummy = "{\"error_code\":\"001\",\"error_msg\":\"\",\"mmid\":\"mastersip\",\"notrx\":\"KAI2206167488848\",\"timelimit\":\"2022-06-16 22:04:16\",\"PNRDep\":\"A6R5161\",\"TotalAmountDep\":\"242500\",\"DiskonDep\":\"0\",\"NTADep\":\"237500\",\"PNRRet\":\"GQJ5JI1\",\"TotalAmountRet\":\"387500\",\"DiskonRet\":\"0\",\"NTARet\":\"382500\",\"penumpang\":[{\"jns\":\"A\",\"nama\":\"Antonius Yuwana Pamuji Ha\",\"noid\":\"5171022903620002\",\"nohp\":\"081338392009\",\"seat_dep\":\"EKO-EKO-1-8A\",\"seat_ret\":\"EKS-EKS-1-7B\"}]}";
-        retrossResponseBookDto = objectMapper.readValue(dummy, RetrossResponseBookDto.class);
+        ResponseEntity<String> responseEntity = retrossTrainServiceFeignClient.book(retrossRequestBookDto.build().toString());
+        retrossResponseBookDto = objectMapper.readValue(responseEntity.getBody(), RetrossResponseBookDto.class);
+//        String dummy = "{\"error_code\":\"000\",\"error_msg\":\"\",\"mmid\":\"mastersip\",\"notrx\":\"KAI2206167488848\",\"timelimit\":\"2022-06-16 22:04:16\",\"PNRDep\":\"A6R5161\",\"TotalAmountDep\":\"242500\",\"DiskonDep\":\"0\",\"NTADep\":\"237500\",\"PNRRet\":\"GQJ5JI1\",\"TotalAmountRet\":\"387500\",\"DiskonRet\":\"0\",\"NTARet\":\"382500\",\"penumpang\":[{\"jns\":\"A\",\"nama\":\"Antonius Yuwana Pamuji Ha\",\"noid\":\"5171022903620002\",\"nohp\":\"081338392009\",\"seat_dep\":\"EKO-EKO-1-8A\",\"seat_ret\":\"EKS-EKS-1-7B\"}]}";
+//        retrossResponseBookDto = objectMapper.readValue(dummy, RetrossResponseBookDto.class);
         log.info("Response body -> {}", objectMapper.writeValueAsString(retrossResponseBookDto));
         return retrossResponseBookDto;
     }

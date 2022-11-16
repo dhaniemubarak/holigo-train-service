@@ -1,4 +1,4 @@
-package id.holigo.services.holigotrainservice.services;
+package id.holigo.services.holigotrainservice.interceptors;
 
 import id.holigo.services.common.model.OrderStatusEnum;
 import id.holigo.services.holigotrainservice.domain.TrainTransaction;
@@ -6,6 +6,7 @@ import id.holigo.services.holigotrainservice.domain.TrainTransactionTrip;
 import id.holigo.services.holigotrainservice.events.OrderStatusTripEvent;
 import id.holigo.services.holigotrainservice.repositories.TrainTransactionRepository;
 import id.holigo.services.holigotrainservice.repositories.TrainTransactionTripRepository;
+import id.holigo.services.holigotrainservice.services.OrderStatusTripServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.Message;
 import org.springframework.statemachine.StateMachine;

@@ -55,6 +55,13 @@ public class TrainTransactionServiceImpl implements TrainTransactionService {
 
     private RetrossTrainService retrossTrainService;
 
+    private PaymentStatusTransactionService paymentStatusTransactionService;
+
+    @Autowired
+    public void setPaymentStatusTripService(PaymentStatusTransactionService paymentStatusTransactionService) {
+        this.paymentStatusTransactionService = paymentStatusTransactionService;
+    }
+
     @Autowired
     public void setTrainFinalFareRepository(TrainFinalFareRepository trainFinalFareRepository) {
         this.trainFinalFareRepository = trainFinalFareRepository;
@@ -179,7 +186,11 @@ public class TrainTransactionServiceImpl implements TrainTransactionService {
         // Build request param
         RetrossRequestBookDto retrossRequestBookDto = inquiryMapper.inquiryToRetrossRequestBookDto(trainFinalFare.getInquiry());
         retrossRequestBookDto.setTgl_dep(trainFinalFare.getInquiry().getDepartureDate().toString());
-        retrossRequestBookDto.setTgl_ret(trainFinalFare.getInquiry().getReturnDate().toString());
+        retrossRequestBookDto.setSelectedIdDep(trainFinalFare.getTrips().get(0).getSupplierId());
+        if (retrossRequestBookDto.getTrip().equals("R")) {
+            retrossRequestBookDto.setTgl_ret(trainFinalFare.getInquiry().getReturnDate().toString());
+            retrossRequestBookDto.setSelectedIdRet(trainFinalFare.getTrips().get(1).getSupplierId());
+        }
         retrossRequestBookDto.setCpname(trainBookDto.getContactPerson().getName());
         retrossRequestBookDto.setCptlp(trainBookDto.getContactPerson().getPhoneNumber());
         retrossRequestBookDto.setCpmail(trainBookDto.getContactPerson().getEmail());
@@ -218,6 +229,4 @@ public class TrainTransactionServiceImpl implements TrainTransactionService {
 
         return savedTrainTransaction;
     }
-
-
 }
