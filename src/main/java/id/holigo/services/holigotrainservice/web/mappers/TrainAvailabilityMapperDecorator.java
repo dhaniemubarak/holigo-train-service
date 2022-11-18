@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import id.holigo.services.holigotrainservice.domain.TrainAvailability;
 import id.holigo.services.holigotrainservice.domain.TrainFinalFareTrip;
 import id.holigo.services.holigotrainservice.web.model.*;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -20,13 +21,14 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Slf4j
+@RequiredArgsConstructor
 public abstract class TrainAvailabilityMapperDecorator implements TrainAvailabilityMapper {
 
 
     private TrainAvailabilityFareMapper trainAvailabilityFareMapper;
     private TrainAvailabilityMapper trainAvailabilityMapper;
 
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
 
     @Autowired
     public void setTrainAvailabilityMapper(TrainAvailabilityMapper trainAvailabilityMapper) {
@@ -38,15 +40,9 @@ public abstract class TrainAvailabilityMapperDecorator implements TrainAvailabil
         this.trainAvailabilityFareMapper = trainAvailabilityFareMapper;
     }
 
-    @Autowired
-    public void setObjectMapper(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
-    }
-
     @Override
     public TrainAvailabilityDto retrossDepartureDtoToTrainAvailabilityDto(RetrossDepartureDto retrossDepartureDto, RetrossFareDto retrossFareDto, InquiryDto inquiryDto) {
         TrainAvailabilityDto trainAvailabilityDto = trainAvailabilityMapper.retrossDepartureDtoToTrainAvailabilityDto(retrossDepartureDto, retrossFareDto, inquiryDto);
-        log.info("Decorator -------------");
         trainAvailabilityDto.setId(UUID.randomUUID());
         String TRAIN_IMAGE_URL = "https://ik.imagekit.io/holigo/transportasi/logo-kai-main_SyEqhgYKx.png";
         trainAvailabilityDto.setImageUrl(TRAIN_IMAGE_URL);

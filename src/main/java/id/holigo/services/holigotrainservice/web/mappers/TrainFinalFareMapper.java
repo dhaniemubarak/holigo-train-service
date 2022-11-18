@@ -18,5 +18,6 @@ public interface TrainFinalFareMapper {
     @Mapping(target = "discountAmount", ignore = true)
     @Mapping(target = "contactPerson", ignore = true)
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "trips", ignore = true)
     TrainTransaction trainFinalFareToTrainTransaction(TrainFinalFare trainFinalFare);
 }

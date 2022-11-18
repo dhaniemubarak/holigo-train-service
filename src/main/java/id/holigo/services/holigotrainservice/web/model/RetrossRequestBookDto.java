@@ -1,6 +1,5 @@
 package id.holigo.services.holigotrainservice.web.model;
 
-import id.holigo.services.common.model.PassengerType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,6 +7,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +35,7 @@ public class RetrossRequestBookDto implements Serializable {
     private String selectedIdDep;
     private String tgl_ret;
     private String selectedIdRet;
-    private List<PassengerDto> passengers;
+    private List<PassengerDto> passengers = new ArrayList<>();
     HashMap<String, Object> map = new HashMap<>();
 
     public Map<String, Object> build() {
@@ -60,7 +60,6 @@ public class RetrossRequestBookDto implements Serializable {
             map.put("selectedIDret", getSelectedIdRet());
         }
         for (int i = 0; i < getPassengers().size(); i++) {
-            System.out.println("Index -> " + i);
             PassengerDto passengerDto = getPassengers().get(i);
             switch (passengerDto.getType()) {
                 case ADULT -> {

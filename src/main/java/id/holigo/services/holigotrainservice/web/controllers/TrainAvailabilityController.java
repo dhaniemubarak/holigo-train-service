@@ -82,7 +82,6 @@ public class TrainAvailabilityController {
         } else {
             inquiry = fetchInquiry.get();
         }
-        log.info("origin -> {}", inquiry.getOriginStation());
         inquiryDto = inquiryMapper.inquiryToInquiryDto(inquiry);
         inquiryDto.setUserId(userId);
         inquiryDto.setOriginStationId(inquiry.getOriginStation().getId());

@@ -14,9 +14,7 @@ import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Getter
 @Setter
@@ -31,7 +29,7 @@ public class TrainTransactionTrip {
     private UUID id;
 
     @ManyToOne
-    private TrainTransaction trainTransaction;
+    private TrainTransaction transaction;
 
     @OneToMany(mappedBy = "trip")
     private List<TrainTransactionTripPassenger> passengers = new ArrayList<>();
@@ -53,6 +51,15 @@ public class TrainTransactionTrip {
 
     @ManyToOne
     private Station destinationStation;
+
+    @Column(length = 2, columnDefinition = "tinyint(2) default 1", nullable = false)
+    private Integer adultAmount;
+
+    @Column(length = 2, columnDefinition = "tinyint(2) default 0", nullable = false)
+    private Integer childAmount;
+
+    @Column(length = 2, columnDefinition = "tinyint(2) default 0", nullable = false)
+    private Integer infantAmount;
 
     private Date departureDate;
 
@@ -116,6 +123,10 @@ public class TrainTransactionTrip {
     private String supplierId;
 
     @Column(length = 20, columnDefinition = "varchar(20)")
+    private String supplierSelectedId;
+
+
+    @Column(length = 20, columnDefinition = "varchar(20)")
     private String bookCode;
 
     @CreationTimestamp
@@ -124,8 +135,7 @@ public class TrainTransactionTrip {
     @UpdateTimestamp
     private Timestamp updatedAt;
 
-    public void addToPassengers(TrainTransactionTripPassenger trainTransactionTripPassenger) {
-        passengers.add(trainTransactionTripPassenger);
-        trainTransactionTripPassenger.setTrip(this);
+    public void setPassengers(List<TrainTransactionTripPassenger> passengers) {
+        this.passengers = passengers;
     }
 }

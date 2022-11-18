@@ -5,8 +5,8 @@ import id.holigo.services.holigotrainservice.domain.TrainTransaction;
 import id.holigo.services.holigotrainservice.events.PaymentStatusEvent;
 import id.holigo.services.holigotrainservice.repositories.TrainTransactionRepository;
 import id.holigo.services.holigotrainservice.repositories.TrainTransactionTripRepository;
-import id.holigo.services.holigotrainservice.services.OrderStatusTripService;
-import id.holigo.services.holigotrainservice.services.PaymentStatusTransactionServiceImpl;
+import id.holigo.services.holigotrainservice.services.OrderTrainTransactionService;
+import id.holigo.services.holigotrainservice.services.PaymentTrainTransactionServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -21,19 +21,18 @@ import org.springframework.statemachine.listener.StateMachineListenerAdapter;
 import org.springframework.statemachine.state.State;
 
 import java.util.EnumSet;
-import java.util.UUID;
 
 @Slf4j
 @RequiredArgsConstructor
 @EnableStateMachineFactory(name = "paymentTrainTransactionSMF")
 @Configuration
-public class PaymentStatusTripSMConfig extends StateMachineConfigurerAdapter<PaymentStatusEnum, PaymentStatusEvent> {
+public class PaymentTrainTransactionSMConfig extends StateMachineConfigurerAdapter<PaymentStatusEnum, PaymentStatusEvent> {
 
     private final TrainTransactionRepository trainTransactionRepository;
 
     private final TrainTransactionTripRepository trainTransactionTripRepository;
 
-    private final OrderStatusTripService orderStatusTripService;
+    private final OrderTrainTransactionService orderTrainTransactionService;
 
 
     @Override
@@ -77,15 +76,17 @@ public class PaymentStatusTripSMConfig extends StateMachineConfigurerAdapter<Pay
     @Bean
     public Action<PaymentStatusEnum, PaymentStatusEvent> paymentHasPaid() {
         return stateContext -> {
-            TrainTransaction trainTransaction = trainTransactionRepository.getReferenceById(UUID.fromString(
+            TrainTransaction trainTransaction = trainTransactionRepository.getReferenceById(Long.valueOf(
                     stateContext
-                            .getMessageHeader(PaymentStatusTransactionServiceImpl.TRAIN_TRANSACTION_HEADER).toString()
+                            .getMessageHeader(PaymentTrainTransactionServiceImpl.TRAIN_TRANSACTION_HEADER).toString()
             ));
+
             trainTransaction.getTrips().forEach(trainTransactionTrip -> {
                 trainTransactionTrip.setPaymentStatus(PaymentStatusEnum.PAID);
                 trainTransactionTripRepository.save(trainTransactionTrip);
             });
-            orderStatusTripService.processIssued(trainTransaction.getId());
+            orderTrainTransactionService.processIssued(trainTransaction.getId());
+
         };
     }
 
@@ -93,8 +94,8 @@ public class PaymentStatusTripSMConfig extends StateMachineConfigurerAdapter<Pay
     public Action<PaymentStatusEnum, PaymentStatusEvent> paymentHasExpired() {
         return stateContext -> {
             TrainTransaction trainTransaction = trainTransactionRepository.getReferenceById(
-                    UUID.fromString(stateContext.getMessageHeader(
-                            PaymentStatusTransactionServiceImpl.TRAIN_TRANSACTION_HEADER).toString()));
+                    Long.valueOf(stateContext.getMessageHeader(
+                            PaymentTrainTransactionServiceImpl.TRAIN_TRANSACTION_HEADER).toString()));
             trainTransaction.getTrips().forEach(trainTransactionTrip -> {
                 trainTransactionTrip.setPaymentStatus(PaymentStatusEnum.PAYMENT_EXPIRED);
                 trainTransactionTripRepository.save(trainTransactionTrip);
@@ -106,8 +107,8 @@ public class PaymentStatusTripSMConfig extends StateMachineConfigurerAdapter<Pay
     public Action<PaymentStatusEnum, PaymentStatusEvent> paymentHasCanceled() {
         return stateContext -> {
             TrainTransaction trainTransaction = trainTransactionRepository.getReferenceById(
-                    UUID.fromString(stateContext.getMessageHeader(
-                            PaymentStatusTransactionServiceImpl.TRAIN_TRANSACTION_HEADER).toString()));
+                    Long.valueOf(stateContext.getMessageHeader(
+                            PaymentTrainTransactionServiceImpl.TRAIN_TRANSACTION_HEADER).toString()));
             trainTransaction.getTrips().forEach(trainTransactionTrip -> {
                 trainTransactionTrip.setPaymentStatus(PaymentStatusEnum.PAYMENT_CANCELED);
                 trainTransactionTripRepository.save(trainTransactionTrip);

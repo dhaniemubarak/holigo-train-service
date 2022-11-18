@@ -1,5 +1,6 @@
 package id.holigo.services.holigotrainservice.domain;
 
+import id.holigo.services.common.model.OrderStatusEnum;
 import id.holigo.services.common.model.PaymentStatusEnum;
 import id.holigo.services.common.model.TripType;
 import lombok.Getter;
@@ -12,6 +13,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -21,11 +23,8 @@ import java.util.UUID;
 public class TrainTransaction {
 
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
-    @Column(length = 36, columnDefinition = "varchar(36)", updatable = false, nullable = false)
-    @Type(type = "org.hibernate.type.UUIDCharType")
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    private Long id;
 
     private Long userId;
 
@@ -39,8 +38,8 @@ public class TrainTransaction {
     @Enumerated(EnumType.STRING)
     private TripType tripType;
 
-    @OneToMany(mappedBy = "trainTransaction")
-    private List<TrainTransactionTrip> trips;
+    @OneToMany(mappedBy = "transaction")
+    private List<TrainTransactionTrip> trips = new ArrayList<>();
 
     private Boolean isBookable;
 
@@ -48,6 +47,9 @@ public class TrainTransaction {
 
     @Enumerated(EnumType.STRING)
     private PaymentStatusEnum paymentStatus;
+
+    @Enumerated(EnumType.STRING)
+    private OrderStatusEnum orderStatus;
 
     @Column(precision = 10, scale = 2, nullable = false)
     private BigDecimal fareAmount;
@@ -100,5 +102,9 @@ public class TrainTransaction {
     @UpdateTimestamp
     private Timestamp updatedAt;
 
+    public void addTrip(TrainTransactionTrip trainTransactionTrip) {
+        trainTransactionTrip.setTransaction(this);
+        this.trips.add(trainTransactionTrip);
+    }
 
 }

@@ -1,21 +1,17 @@
 package id.holigo.services.holigotrainservice.services;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import id.holigo.services.common.model.OrderStatusEnum;
 import id.holigo.services.common.model.PaymentStatusEnum;
+import id.holigo.services.common.model.TransactionDto;
 import id.holigo.services.holigotrainservice.domain.*;
 import id.holigo.services.holigotrainservice.repositories.*;
-import id.holigo.services.holigotrainservice.services.retross.RetrossTrainService;
+import id.holigo.services.holigotrainservice.services.transaction.TransactionService;
 import id.holigo.services.holigotrainservice.web.exceptions.NotFoundException;
 import id.holigo.services.holigotrainservice.web.mappers.*;
-import id.holigo.services.holigotrainservice.web.model.RetrossRequestBookDto;
-import id.holigo.services.holigotrainservice.web.model.RetrossResponseBookDto;
 import id.holigo.services.holigotrainservice.web.model.TrainBookDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -27,8 +23,6 @@ import java.util.Optional;
 @Slf4j
 @Service
 public class TrainTransactionServiceImpl implements TrainTransactionService {
-
-    private OrderStatusTripService orderStatusTripService;
 
     private TrainFinalFareRepository trainFinalFareRepository;
 
@@ -46,20 +40,29 @@ public class TrainTransactionServiceImpl implements TrainTransactionService {
 
     private TrainTransactionTripMapper trainTransactionTripMapper;
 
+    private TrainService trainService;
 
     private TrainTransactionTripRepository trainTransactionTripRepository;
 
     private TrainTransactionTripPassengerRepository trainTransactionTripPassengerRepository;
 
-    private InquiryMapper inquiryMapper;
+    private TransactionService transactionService;
 
-    private RetrossTrainService retrossTrainService;
-
-    private PaymentStatusTransactionService paymentStatusTransactionService;
+    private TrainTransactionMapper trainTransactionMapper;
 
     @Autowired
-    public void setPaymentStatusTripService(PaymentStatusTransactionService paymentStatusTransactionService) {
-        this.paymentStatusTransactionService = paymentStatusTransactionService;
+    public void setTrainService(TrainService trainService) {
+        this.trainService = trainService;
+    }
+
+    @Autowired
+    public void setTrainTransactionMapper(TrainTransactionMapper trainTransactionMapper) {
+        this.trainTransactionMapper = trainTransactionMapper;
+    }
+
+    @Autowired
+    public void setTransactionService(TransactionService transactionService) {
+        this.transactionService = transactionService;
     }
 
     @Autowired
@@ -112,22 +115,6 @@ public class TrainTransactionServiceImpl implements TrainTransactionService {
         this.trainTransactionTripRepository = trainTransactionTripRepository;
     }
 
-    @Autowired
-    public void setInquiryMapper(InquiryMapper inquiryMapper) {
-        this.inquiryMapper = inquiryMapper;
-    }
-
-    @Autowired
-    public void setRetrossTrainService(RetrossTrainService retrossTrainService) {
-        this.retrossTrainService = retrossTrainService;
-    }
-
-    @Autowired
-    public void setOrderStatusTripService(OrderStatusTripService orderStatusTripService) {
-        this.orderStatusTripService = orderStatusTripService;
-    }
-
-    @Transactional
     @Override
     public TrainTransaction createTransaction(TrainBookDto trainBookDto, Long userId) {
 
@@ -151,82 +138,55 @@ public class TrainTransactionServiceImpl implements TrainTransactionService {
         trainTransaction.setTripType(trainFinalFare.getInquiry().getTripType());
         trainTransaction.setExpiredAt(Timestamp.valueOf(LocalDateTime.now().plusMinutes(40L)));
         trainTransaction.setDiscountAmount(BigDecimal.valueOf(0.00));
+        trainTransaction.setOrderStatus(OrderStatusEnum.PROCESS_BOOK);
         trainTransaction.setPaymentStatus(PaymentStatusEnum.SELECTING_PAYMENT);
         TrainTransaction savedTrainTransaction = trainTransactionRepository.save(trainTransaction);
-
 
         // Create passenger
         List<Passenger> passengers = trainBookDto.getPassengers().stream()
                 .map(passengerMapper::passengerDtoToPassenger).toList();
         Iterable<Passenger> savedPassengers = passengerRepository.saveAll(passengers);
-        // End of create passenger
-
-        // Create trip
+//        // End of create passenger
+//
+//        // Create trip
         List<TrainTransactionTrip> trips = new ArrayList<>();
-
+//
         trainFinalFare.getTrips().forEach(trainFinalFareTrip -> {
             TrainTransactionTrip trainTransactionTrip = trainTransactionTripMapper.trainFinalFareTripToTrainTransactionTrip(trainFinalFareTrip);
             trainTransactionTrip.setPaymentStatus(PaymentStatusEnum.SELECTING_PAYMENT);
             trainTransactionTrip.setOrderStatus(OrderStatusEnum.PROCESS_BOOK);
-            trainTransactionTrip.setTrainTransaction(savedTrainTransaction);
+            trainTransactionTrip.setTransaction(savedTrainTransaction);
             trips.add(trainTransactionTrip);
         });
         Iterable<TrainTransactionTrip> savedTrainTransactionTrip = trainTransactionTripRepository.saveAll(trips);
-        savedTrainTransactionTrip.forEach(trainTransactionTrip -> savedPassengers.forEach(passenger -> {
-            TrainTransactionTripPassenger trainTransactionTripPassenger = new TrainTransactionTripPassenger();
-            trainTransactionTripPassenger.setPassenger(passenger);
-            trainTransactionTripPassenger.setTrip(trainTransactionTrip);
-            trainTransactionTrip.addToPassengers(trainTransactionTripPassenger);
-        }));
 
+        List<TrainTransactionTripPassenger> trainTransactionTripPassengers = new ArrayList<>();
+
+        savedTrainTransactionTrip.forEach(trainTransactionTrip -> {
+            savedTrainTransaction.addTrip(trainTransactionTrip);
+            savedPassengers.forEach(passenger -> {
+                TrainTransactionTripPassenger trainTransactionTripPassenger = new TrainTransactionTripPassenger();
+                trainTransactionTripPassenger.setTrip(trainTransactionTrip);
+                trainTransactionTripPassenger.setPassenger(passenger);
+                trainTransactionTripPassengers.add(trainTransactionTripPassenger);
+            });
+        });
+        trainTransactionTripPassengerRepository.saveAll(trainTransactionTripPassengers);
         // create master transaction
-
-
-        // Book to retross
-        // Build request param
-        RetrossRequestBookDto retrossRequestBookDto = inquiryMapper.inquiryToRetrossRequestBookDto(trainFinalFare.getInquiry());
-        retrossRequestBookDto.setTgl_dep(trainFinalFare.getInquiry().getDepartureDate().toString());
-        retrossRequestBookDto.setSelectedIdDep(trainFinalFare.getTrips().get(0).getSupplierId());
-        if (retrossRequestBookDto.getTrip().equals("R")) {
-            retrossRequestBookDto.setTgl_ret(trainFinalFare.getInquiry().getReturnDate().toString());
-            retrossRequestBookDto.setSelectedIdRet(trainFinalFare.getTrips().get(1).getSupplierId());
-        }
-        retrossRequestBookDto.setCpname(trainBookDto.getContactPerson().getName());
-        retrossRequestBookDto.setCptlp(trainBookDto.getContactPerson().getPhoneNumber());
-        retrossRequestBookDto.setCpmail(trainBookDto.getContactPerson().getEmail());
-        retrossRequestBookDto.setPassengers(trainBookDto.getPassengers());
-        RetrossResponseBookDto retrossResponseBookDto;
+        TransactionDto transactionDto = trainTransactionMapper.trainTransactionToTransactionDto(savedTrainTransaction);
         try {
-            retrossResponseBookDto = retrossTrainService.book(retrossRequestBookDto);
-            log.info(new ObjectMapper().writeValueAsString(retrossResponseBookDto));
-        } catch (JsonProcessingException e) {
+            TransactionDto newTransaction = transactionService.createNewTransaction(transactionDto);
+            savedTrainTransaction.setTransactionId(newTransaction.getId());
+            trainTransactionRepository.save(savedTrainTransaction);
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
-        int tripCounter = 0;
-        for (TrainTransactionTrip trainTransactionTrip : savedTrainTransactionTrip) {
-            if (retrossResponseBookDto.getError_code().equals("001")) {
-                orderStatusTripService.bookingFail(trainTransactionTrip.getId());
-                continue;
-            }
-            int passengerCounter = 0;
-            for (TrainTransactionTripPassenger trainTransactionTripPassenger : trainTransactionTrip.getPassengers()) {
-                log.info("Passenger counter -> {}", passengerCounter);
-                trainTransactionTripPassenger.setSeatNumber(
-                        (tripCounter == 0) ? retrossResponseBookDto.getPassengers().get(passengerCounter).getSeat_dep()
-                                : retrossResponseBookDto.getPassengers().get(passengerCounter).getSeat_ret());
-                trainTransactionTripPassengerRepository.save(trainTransactionTripPassenger);
-                passengerCounter++;
-            }
-            trainTransactionTrip.setSupplierId(retrossResponseBookDto.getSupplierId());
-            trainTransactionTrip.setBookCode(
-                    (tripCounter == 0) ? retrossResponseBookDto.getBookCodeDeparture()
-                            : retrossResponseBookDto.getBookCodeReturn());
-            trainTransactionTripRepository.save(trainTransactionTrip);
-            orderStatusTripService.bookingSuccess(trainTransactionTrip.getId());
-            tripCounter++;
-        }
-
+        trainService.createBook(savedTrainTransaction);
         return savedTrainTransaction;
+    }
+
+    @Override
+    public void cancelTransaction(TrainTransaction trainTransaction) {
+        trainService.cancelBook(trainTransaction);
     }
 }

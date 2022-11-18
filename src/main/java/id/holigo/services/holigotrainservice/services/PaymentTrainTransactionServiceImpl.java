@@ -3,7 +3,7 @@ package id.holigo.services.holigotrainservice.services;
 import id.holigo.services.common.model.PaymentStatusEnum;
 import id.holigo.services.holigotrainservice.domain.TrainTransaction;
 import id.holigo.services.holigotrainservice.events.PaymentStatusEvent;
-import id.holigo.services.holigotrainservice.interceptors.PaymentStatusTransactionInterceptor;
+import id.holigo.services.holigotrainservice.interceptors.PaymentTrainTransactionInterceptor;
 import id.holigo.services.holigotrainservice.repositories.TrainTransactionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,17 +14,15 @@ import org.springframework.statemachine.config.StateMachineFactory;
 import org.springframework.statemachine.support.DefaultStateMachineContext;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
-
 @Service
 @RequiredArgsConstructor
-public class PaymentStatusTransactionServiceImpl implements PaymentStatusTransactionService {
+public class PaymentTrainTransactionServiceImpl implements PaymentTrainTransactionService {
 
     public static final String TRAIN_TRANSACTION_HEADER = "train-transaction-id";
 
     private final StateMachineFactory<PaymentStatusEnum, PaymentStatusEvent> stateMachineFactory;
 
-    private final PaymentStatusTransactionInterceptor paymentStatusTransactionInterceptor;
+    private final PaymentTrainTransactionInterceptor paymentStatusTransactionInterceptor;
 
     private TrainTransactionRepository trainTransactionRepository;
 
@@ -34,27 +32,26 @@ public class PaymentStatusTransactionServiceImpl implements PaymentStatusTransac
     }
 
     @Override
-    public StateMachine<PaymentStatusEnum, PaymentStatusEvent> paymentHasPaid(UUID id) {
+    public StateMachine<PaymentStatusEnum, PaymentStatusEvent> paymentHasPaid(Long id) {
         StateMachine<PaymentStatusEnum, PaymentStatusEvent> sm = build(id);
         sendEvent(id, sm, PaymentStatusEvent.PAYMENT_PAID);
         return sm;
     }
 
     @Override
-    public StateMachine<PaymentStatusEnum, PaymentStatusEvent> paymentHasCanceled(UUID id) {
+    public void paymentHasCanceled(Long id) {
         StateMachine<PaymentStatusEnum, PaymentStatusEvent> sm = build(id);
         sendEvent(id, sm, PaymentStatusEvent.PAYMENT_CANCEL);
-        return sm;
     }
 
     @Override
-    public StateMachine<PaymentStatusEnum, PaymentStatusEvent> paymentHasExpired(UUID id) {
+    public StateMachine<PaymentStatusEnum, PaymentStatusEvent> paymentHasExpired(Long id) {
         StateMachine<PaymentStatusEnum, PaymentStatusEvent> sm = build(id);
         sendEvent(id, sm, PaymentStatusEvent.PAYMENT_EXPIRED);
         return sm;
     }
 
-    private void sendEvent(UUID trainTransactionId, StateMachine<PaymentStatusEnum, PaymentStatusEvent> sm,
+    private void sendEvent(Long trainTransactionId, StateMachine<PaymentStatusEnum, PaymentStatusEvent> sm,
                            PaymentStatusEvent event) {
         Message<PaymentStatusEvent> message = MessageBuilder.withPayload(event)
                 .setHeader(TRAIN_TRANSACTION_HEADER, trainTransactionId).build();
@@ -62,7 +59,7 @@ public class PaymentStatusTransactionServiceImpl implements PaymentStatusTransac
 
     }
 
-    private StateMachine<PaymentStatusEnum, PaymentStatusEvent> build(UUID trainTransactionId) {
+    private StateMachine<PaymentStatusEnum, PaymentStatusEvent> build(Long trainTransactionId) {
         TrainTransaction trainTransaction = trainTransactionRepository.getReferenceById(trainTransactionId);
 
         StateMachine<PaymentStatusEnum, PaymentStatusEvent> sm = stateMachineFactory

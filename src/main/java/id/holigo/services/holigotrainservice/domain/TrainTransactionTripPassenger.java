@@ -1,6 +1,8 @@
 package id.holigo.services.holigotrainservice.domain;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
@@ -13,6 +15,8 @@ import java.util.UUID;
 
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity(name = "train_transaction_trip_passengers")
 public class TrainTransactionTripPassenger {
 
@@ -24,9 +28,11 @@ public class TrainTransactionTripPassenger {
     private UUID id;
 
     @ManyToOne
+    @JoinColumn(name = "trip_id")
     private TrainTransactionTrip trip;
 
     @ManyToOne
+    @JoinColumn(name = "passenger_id")
     private Passenger passenger;
 
     private String seatNumber;

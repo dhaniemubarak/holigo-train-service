@@ -11,6 +11,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.util.Set;
 import java.util.UUID;
 
 @Getter
@@ -41,6 +42,9 @@ public class Passenger {
 
     @OneToOne(cascade = CascadeType.ALL)
     private Passport passport;
+
+    @OneToMany(mappedBy = "passenger")
+    private Set<TrainTransactionTripPassenger> trips;
 
     @CreationTimestamp
     private Timestamp createdAt;

@@ -6,17 +6,18 @@ import id.holigo.services.common.model.FareDto;
 import id.holigo.services.common.model.TripType;
 import id.holigo.services.holigotrainservice.components.Fare;
 import id.holigo.services.holigotrainservice.config.FeeConfig;
-import id.holigo.services.holigotrainservice.domain.Inquiry;
-import id.holigo.services.holigotrainservice.domain.TrainAvailability;
-import id.holigo.services.holigotrainservice.domain.TrainFinalFare;
-import id.holigo.services.holigotrainservice.domain.TrainFinalFareTrip;
+import id.holigo.services.holigotrainservice.domain.*;
 import id.holigo.services.holigotrainservice.repositories.TrainAvailabilityRepository;
 import id.holigo.services.holigotrainservice.repositories.TrainFinalFareRepository;
+import id.holigo.services.holigotrainservice.repositories.TrainTransactionTripPassengerRepository;
+import id.holigo.services.holigotrainservice.repositories.TrainTransactionTripRepository;
 import id.holigo.services.holigotrainservice.services.retross.RetrossTrainService;
 import id.holigo.services.holigotrainservice.web.exceptions.FinalFareBadRequestException;
 import id.holigo.services.holigotrainservice.web.mappers.InquiryMapper;
 import id.holigo.services.holigotrainservice.web.mappers.TrainAvailabilityMapper;
+import id.holigo.services.holigotrainservice.web.mappers.TrainTransactionMapper;
 import id.holigo.services.holigotrainservice.web.model.*;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
+@RequiredArgsConstructor
 @Service
 public class TrainServiceImpl implements TrainService {
 
@@ -37,9 +39,49 @@ public class TrainServiceImpl implements TrainService {
 
     private TrainAvailabilityMapper trainAvailabilityMapper;
 
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
 
     private InquiryMapper inquiryMapper;
+
+    private TrainTransactionMapper trainTransactionMapper;
+
+    private OrderTrainTransactionService orderTrainTransactionService;
+
+    private PaymentTrainTransactionService paymentTrainTransactionService;
+
+    private TrainTransactionTripPassengerRepository trainTransactionTripPassengerRepository;
+
+    private TrainTransactionTripRepository trainTransactionTripRepository;
+
+    @Autowired
+    public void setOrderTrainTransactionService(OrderTrainTransactionService orderTrainTransactionService) {
+        this.orderTrainTransactionService = orderTrainTransactionService;
+    }
+
+    @Autowired
+    public void setTrainTransactionTripRepository(TrainTransactionTripRepository trainTransactionTripRepository) {
+        this.trainTransactionTripRepository = trainTransactionTripRepository;
+    }
+
+    @Autowired
+    public void setPaymentTrainTransactionService(PaymentTrainTransactionService paymentTrainTransactionService) {
+        this.paymentTrainTransactionService = paymentTrainTransactionService;
+    }
+
+    @Autowired
+    public void setTrainTransactionTripPassengerRepository(TrainTransactionTripPassengerRepository trainTransactionTripPassengerRepository) {
+        this.trainTransactionTripPassengerRepository = trainTransactionTripPassengerRepository;
+    }
+
+    @Autowired
+    public void setOrderStatusTripService(OrderTrainTransactionService orderTrainTransactionService) {
+        this.orderTrainTransactionService = orderTrainTransactionService;
+    }
+
+    @Autowired
+    public void setTrainTransactionMapper(TrainTransactionMapper trainTransactionMapper) {
+        this.trainTransactionMapper = trainTransactionMapper;
+    }
 
     @Autowired
     public void setRetrossTrainService(RetrossTrainService retrossTrainService) {
@@ -54,11 +96,6 @@ public class TrainServiceImpl implements TrainService {
     @Autowired
     public void setTrainAvailabilityRepository(TrainAvailabilityRepository trainAvailabilityRepository) {
         this.trainAvailabilityRepository = trainAvailabilityRepository;
-    }
-
-    @Autowired
-    public void setObjectMapper(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
     }
 
     @Autowired
@@ -88,7 +125,6 @@ public class TrainServiceImpl implements TrainService {
                 .inf(inquiryDto.getInfantAmount())
                 .build();
         RetrossResponseScheduleDto retrossResponseScheduleDto = retrossTrainService.getSchedule(requestScheduleDto);
-        log.info("retrossResponseScheduleDto -> {}", new ObjectMapper().writeValueAsString(retrossResponseScheduleDto));
         if (retrossResponseScheduleDto.getSchedule() == null) {
             return null;
         }
@@ -108,6 +144,59 @@ public class TrainServiceImpl implements TrainService {
             trainAvailabilityRepository.saveAll(listAvailabilityDto.getReturns().stream()
                     .map(trainAvailabilityMapper::trainAvailabilityDtoToTrainAvailability).collect(Collectors.toList()));
         }
+    }
+
+    @Override
+    public void createBook(TrainTransaction trainTransaction) {
+        RetrossRequestBookDto retrossRequestBookDto = trainTransactionMapper.trainTransactionToRetrossRequestBookDto(trainTransaction);
+        RetrossResponseBookDto retrossResponseBookDto;
+        try {
+            retrossResponseBookDto = retrossTrainService.book(retrossRequestBookDto);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+        int tripCounter = 0;
+        for (TrainTransactionTrip trainTransactionTrip : trainTransaction.getTrips()) {
+            if (retrossResponseBookDto.getError_code().equals("001")) {
+                orderTrainTransactionService.bookingFail(trainTransaction.getId());
+                paymentTrainTransactionService.paymentHasCanceled(trainTransaction.getId());
+                continue;
+            }
+            int passengerCounter = 0;
+            for (TrainTransactionTripPassenger trainTransactionTripPassenger : trainTransactionTripPassengerRepository.findAllByTripId(trainTransactionTrip.getId())) {
+                trainTransactionTripPassenger.setSeatNumber(
+                        (tripCounter == 0) ? retrossResponseBookDto.getPassengers().get(passengerCounter).getSeat_dep()
+                                : retrossResponseBookDto.getPassengers().get(passengerCounter).getSeat_ret());
+                trainTransactionTripPassengerRepository.save(trainTransactionTripPassenger);
+                passengerCounter++;
+            }
+            trainTransactionTrip.setSupplierId(retrossResponseBookDto.getSupplierId());
+            trainTransactionTrip.setBookCode(
+                    (tripCounter == 0) ? retrossResponseBookDto.getBookCodeDeparture()
+                            : retrossResponseBookDto.getBookCodeReturn());
+            trainTransactionTripRepository.save(trainTransactionTrip);
+            orderTrainTransactionService.bookingSuccess(trainTransaction.getId());
+            tripCounter++;
+        }
+    }
+
+    @Override
+    public void issued(TrainTransaction trainTransaction) {
+        // TODO issued
+    }
+
+    @Override
+    public void cancelBook(TrainTransaction trainTransaction) {
+
+        RetrossCancelDto retrossCancelDto = RetrossCancelDto.builder()
+                .notrx(trainTransaction.getTrips().get(0).getSupplierId()).build();
+        try {
+            retrossTrainService.cancel(retrossCancelDto);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+        orderTrainTransactionService.cancelTransaction(trainTransaction.getId());
+        paymentTrainTransactionService.paymentHasCanceled(trainTransaction.getId());
     }
 
     @Transactional

@@ -1,6 +1,7 @@
 package id.holigo.services.holigotrainservice.services.retross;
 
 
+import id.holigo.services.holigotrainservice.web.model.RetrossRequestBookDto;
 import id.holigo.services.holigotrainservice.web.model.RetrossRequestScheduleDto;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
@@ -18,4 +19,7 @@ public interface RetrossTrainServiceFeignClient {
 
     @RequestMapping(method = RequestMethod.POST, value = GET_SCHEDULE)
     ResponseEntity<String> book(@RequestBody String build);
+
+    @RequestMapping(method = RequestMethod.POST, value = GET_SCHEDULE)
+    ResponseEntity<String> cancel(@RequestBody String build);
 }
