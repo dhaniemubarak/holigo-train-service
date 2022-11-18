@@ -21,14 +21,18 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Slf4j
-@RequiredArgsConstructor
 public abstract class TrainAvailabilityMapperDecorator implements TrainAvailabilityMapper {
 
 
     private TrainAvailabilityFareMapper trainAvailabilityFareMapper;
     private TrainAvailabilityMapper trainAvailabilityMapper;
 
-    private final ObjectMapper objectMapper;
+    private ObjectMapper objectMapper;
+
+    @Autowired
+    public void setObjectMapper(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
 
     @Autowired
     public void setTrainAvailabilityMapper(TrainAvailabilityMapper trainAvailabilityMapper) {
