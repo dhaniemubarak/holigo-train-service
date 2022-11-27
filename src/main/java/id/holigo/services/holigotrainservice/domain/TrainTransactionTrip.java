@@ -135,6 +135,8 @@ public class TrainTransactionTrip {
     @UpdateTimestamp
     private Timestamp updatedAt;
 
+    private Integer segment;
+
     public void setPassengers(List<TrainTransactionTripPassenger> passengers) {
         this.passengers = passengers;
     }

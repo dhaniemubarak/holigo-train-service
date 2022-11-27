@@ -6,8 +6,7 @@ import id.holigo.services.holigotrainservice.domain.TrainTransaction;
 import id.holigo.services.holigotrainservice.domain.TrainTransactionTrip;
 import id.holigo.services.holigotrainservice.repositories.TrainTransactionTripPassengerRepository;
 import id.holigo.services.holigotrainservice.services.user.UserService;
-import id.holigo.services.holigotrainservice.web.model.RetrossRequestBookDto;
-import id.holigo.services.holigotrainservice.web.model.TrainTransactionDtoForUser;
+import id.holigo.services.holigotrainservice.web.model.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -61,7 +60,8 @@ public abstract class TrainTransactionMapperDecorator implements TrainTransactio
     public TrainTransactionDtoForUser trainTransactionToTrainTransactionDtoForUser(TrainTransaction trainTransaction) {
         TrainTransactionDtoForUser trainTransactionDtoForUser = this.trainTransactionMapper.trainTransactionToTrainTransactionDtoForUser(trainTransaction);
         trainTransactionDtoForUser.setIconUrl(iconUrl);
-        trainTransactionDtoForUser.setTrips(trainTransaction.getTrips().stream().map(trainTransactionTripMapper::trainTransactionTripToTrainTransactionTripDtoForUser).collect(Collectors.toList()));
+        trainTransactionDtoForUser.setSeatMapUrl("/api/v1/train/" + trainTransactionDtoForUser.getId() + "/trips");
+        trainTransactionDtoForUser.setTrips(trainTransaction.getTrips().stream().map(trainTransactionTrip -> trainTransactionTripMapper.trainTransactionTripToTrainTransactionTripDtoForUser(trainTransactionTrip)).collect(Collectors.toList()));
         return trainTransactionDtoForUser;
     }
 

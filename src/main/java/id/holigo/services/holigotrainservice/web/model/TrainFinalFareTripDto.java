@@ -39,4 +39,6 @@ public class TrainFinalFareTripDto implements Serializable {
     private String imageUrl;
 
     private BigDecimal fareAmount;
+
+    private Integer segment;
 }

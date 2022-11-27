@@ -39,6 +39,7 @@ public class TrainTransaction {
     private TripType tripType;
 
     @OneToMany(mappedBy = "transaction")
+    @OrderBy("segment")
     private List<TrainTransactionTrip> trips = new ArrayList<>();
 
     private Boolean isBookable;

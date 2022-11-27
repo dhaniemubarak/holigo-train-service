@@ -109,4 +109,6 @@ public class TrainFinalFareTrip {
 
     @UpdateTimestamp
     private Timestamp updatedAt;
+
+    private Integer segment;
 }

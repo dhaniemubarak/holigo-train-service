@@ -22,4 +22,7 @@ public interface RetrossTrainServiceFeignClient {
 
     @RequestMapping(method = RequestMethod.POST, value = GET_SCHEDULE)
     ResponseEntity<String> cancel(@RequestBody String build);
+
+    @RequestMapping(method = RequestMethod.POST, value = GET_SCHEDULE)
+    ResponseEntity<String> seatMap(@RequestBody String build);
 }

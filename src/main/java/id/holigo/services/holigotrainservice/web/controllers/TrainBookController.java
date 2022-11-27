@@ -38,7 +38,7 @@ public class TrainBookController {
             throw new BookException("Gagal booking, Silahkan pilih kembali penerbangan Anda", null, false, false);
         }
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setLocation(UriComponentsBuilder.fromPath(TRANSACTION_PATH).buildAndExpand(trainTransaction.getId().toString()).toUri());
+        httpHeaders.setLocation(UriComponentsBuilder.fromPath(TRANSACTION_PATH).buildAndExpand(trainTransaction.getTransactionId().toString()).toUri());
         return new ResponseEntity<>(httpHeaders, HttpStatus.CREATED);
     }
 }

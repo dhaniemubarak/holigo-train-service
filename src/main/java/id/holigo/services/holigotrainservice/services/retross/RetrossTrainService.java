@@ -9,5 +9,7 @@ public interface RetrossTrainService {
 
     RetrossResponseBookDto book(RetrossRequestBookDto retrossRequestBookDto) throws JsonProcessingException;
 
+    RetrossResponseSeatMapDto getSeatMap(RetrossRequestSeatMapDto retrossRequestSeatMapDto) throws JsonProcessingException;
+
     void cancel(RetrossCancelDto retrossCancelDto) throws JsonProcessingException;
 }

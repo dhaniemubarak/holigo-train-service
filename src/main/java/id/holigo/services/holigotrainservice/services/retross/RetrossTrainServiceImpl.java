@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +29,8 @@ public class RetrossTrainServiceImpl implements RetrossTrainService {
     private static final String RETROSS_ACTION_BOOK = "booking";
 
     private static final String RETROSS_ACTION_CANCEL = "cancel";
+
+    private static final String RETROSS_ACTION_GET_SEAT = "get_seat";
 
 
     private static final String RETROSS_APP_TRANSACTION = "transaction";
@@ -67,6 +70,19 @@ public class RetrossTrainServiceImpl implements RetrossTrainService {
 //        String dummy = "{\"error_code\":\"000\",\"error_msg\":\"\",\"mmid\":\"mastersip\",\"notrx\":\"KAI2206167488848\",\"timelimit\":\"2022-06-16 22:04:16\",\"PNRDep\":\"A6R5161\",\"TotalAmountDep\":\"242500\",\"DiskonDep\":\"0\",\"NTADep\":\"237500\",\"PNRRet\":\"GQJ5JI1\",\"TotalAmountRet\":\"387500\",\"DiskonRet\":\"0\",\"NTARet\":\"382500\",\"penumpang\":[{\"jns\":\"A\",\"nama\":\"Antonius Yuwana Pamuji Ha\",\"noid\":\"5171022903620002\",\"nohp\":\"081338392009\",\"seat_dep\":\"EKO-EKO-1-8A\",\"seat_ret\":\"EKS-EKS-1-7B\"}]}";
 //        retrossResponseBookDto = objectMapper.readValue(dummy, RetrossResponseBookDto.class);
         return retrossResponseBookDto;
+    }
+
+    @Override
+    public RetrossResponseSeatMapDto getSeatMap(RetrossRequestSeatMapDto retrossRequestSeatMapDto) throws JsonProcessingException {
+        retrossRequestSeatMapDto.setMmid(RETROSS_ID);
+        retrossRequestSeatMapDto.setRqid(RETROSS_PASSKEY);
+        retrossRequestSeatMapDto.setApp(RETROSS_APP_INFORMATION);
+        retrossRequestSeatMapDto.setAction(RETROSS_ACTION_GET_SEAT);
+        ResponseEntity<String> responseEntity = retrossTrainServiceFeignClient.seatMap(objectMapper.writeValueAsString(retrossRequestSeatMapDto));
+        if (responseEntity.getStatusCode().equals(HttpStatus.OK)) {
+            return objectMapper.readValue(responseEntity.getBody(), RetrossResponseSeatMapDto.class);
+        }
+        return null;
     }
 
     @Override
