@@ -1,12 +1,10 @@
 package id.holigo.services.holigotrainservice.web.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import id.holigo.services.common.model.OrderStatusEnum;
 import id.holigo.services.common.model.TripType;
 import id.holigo.services.holigotrainservice.domain.TrainTransaction;
 import id.holigo.services.holigotrainservice.repositories.TrainTransactionRepository;
-import id.holigo.services.holigotrainservice.services.TrainService;
 import id.holigo.services.holigotrainservice.services.TrainTransactionService;
 import id.holigo.services.holigotrainservice.services.retross.RetrossTrainService;
 import id.holigo.services.holigotrainservice.web.mappers.SeatMapMapper;
@@ -16,10 +14,7 @@ import id.holigo.services.holigotrainservice.web.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -83,13 +78,16 @@ public class TrainTransactionController {
     }
 
     @GetMapping("/api/v1/train/transactions/{id}/trips")
-    public ResponseEntity<List<TrainTransactionTripDtoForUser>> getSeatMap(@PathVariable("id") Long id) {
+    public ResponseEntity<List<TrainTransactionTripDtoForUser>> getSeatMap(@PathVariable("id") Long id, @RequestHeader("user-id") Long userId) {
         Optional<TrainTransaction> fetchTrainTransaction = trainTransactionRepository.findById(id);
         if (fetchTrainTransaction.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        List<TrainTransactionTripDtoForUser> trips = new ArrayList<>();
         TrainTransaction trainTransaction = fetchTrainTransaction.get();
+        if (userId.intValue() != trainTransaction.getUserId().intValue()) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        List<TrainTransactionTripDtoForUser> trips = new ArrayList<>();
         SeatMapDto departureSeatMap = null;
         SeatMapDto returnSeatMap = null;
         if (trainTransaction.getOrderStatus().equals(OrderStatusEnum.BOOKED)) {
@@ -134,6 +132,36 @@ public class TrainTransactionController {
 
         return new ResponseEntity<>(trips, HttpStatus.OK);
 //        return new ResponseEntity<>(trainTransactionMapper.trainTransactionToTrainTransactionDtoForUser(trainTransaction), HttpStatus.OK);
+    }
+
+    @PutMapping("/api/v1/train/transactions/{id}/trips")
+    public ResponseEntity<List<TrainTransactionTripDtoForUser>> updateSeatPassenger(@PathVariable("id") Long id,
+                                                                                    @RequestBody List<TrainTransactionTripDtoForUser> trainTransactionTripDtoForUsers,
+                                                                                    @RequestHeader("user-id") Long userId) {
+        Optional<TrainTransaction> fetchTrainTransaction = trainTransactionRepository.findById(id);
+        if (fetchTrainTransaction.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        TrainTransaction trainTransaction = fetchTrainTransaction.get();
+        if (userId.intValue() != trainTransaction.getUserId().intValue()) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        RetrossRequestChangeSeatDto retrossRequestChangeSeatDto = new RetrossRequestChangeSeatDto();
+        retrossRequestChangeSeatDto.setNotrx(trainTransaction.getTrips().get(0).getSupplierId());
+        retrossRequestChangeSeatDto.setTrips(trainTransactionTripDtoForUsers);
+        RetrossResponseChangeSeatDto retrossResponseChangeSeatDto;
+        try {
+            retrossResponseChangeSeatDto = retrossTrainService.changeSeat(retrossRequestChangeSeatDto);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+
+        if (retrossResponseChangeSeatDto.getError_code().equals("000")) {
+            return new ResponseEntity<>(trainTransactionTripDtoForUsers, HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+
     }
 
     @PutMapping("/api/v1/train/transactions/{id}")

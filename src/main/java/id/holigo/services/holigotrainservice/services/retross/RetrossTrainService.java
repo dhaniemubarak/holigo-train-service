@@ -11,5 +11,7 @@ public interface RetrossTrainService {
 
     RetrossResponseSeatMapDto getSeatMap(RetrossRequestSeatMapDto retrossRequestSeatMapDto) throws JsonProcessingException;
 
+    RetrossResponseChangeSeatDto changeSeat(RetrossRequestChangeSeatDto retrossRequestChangeSeatDto) throws JsonProcessingException;
+
     void cancel(RetrossCancelDto retrossCancelDto) throws JsonProcessingException;
 }

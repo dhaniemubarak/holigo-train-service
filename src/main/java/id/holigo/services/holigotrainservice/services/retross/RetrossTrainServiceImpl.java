@@ -32,6 +32,8 @@ public class RetrossTrainServiceImpl implements RetrossTrainService {
 
     private static final String RETROSS_ACTION_GET_SEAT = "get_seat";
 
+    private static final String RETROSS_ACTION_CHANGE_SEAT = "change_seat";
+
 
     private static final String RETROSS_APP_TRANSACTION = "transaction";
 
@@ -64,7 +66,6 @@ public class RetrossTrainServiceImpl implements RetrossTrainService {
         retrossRequestBookDto.setApp(RETROSS_APP_TRANSACTION);
         retrossRequestBookDto.setAction(RETROSS_ACTION_BOOK);
         RetrossResponseBookDto retrossResponseBookDto;
-        retrossRequestBookDto.build();
         ResponseEntity<String> responseEntity = retrossTrainServiceFeignClient.book(objectMapper.writeValueAsString(retrossRequestBookDto.build()));
         retrossResponseBookDto = objectMapper.readValue(responseEntity.getBody(), RetrossResponseBookDto.class);
 //        String dummy = "{\"error_code\":\"000\",\"error_msg\":\"\",\"mmid\":\"mastersip\",\"notrx\":\"KAI2206167488848\",\"timelimit\":\"2022-06-16 22:04:16\",\"PNRDep\":\"A6R5161\",\"TotalAmountDep\":\"242500\",\"DiskonDep\":\"0\",\"NTADep\":\"237500\",\"PNRRet\":\"GQJ5JI1\",\"TotalAmountRet\":\"387500\",\"DiskonRet\":\"0\",\"NTARet\":\"382500\",\"penumpang\":[{\"jns\":\"A\",\"nama\":\"Antonius Yuwana Pamuji Ha\",\"noid\":\"5171022903620002\",\"nohp\":\"081338392009\",\"seat_dep\":\"EKO-EKO-1-8A\",\"seat_ret\":\"EKS-EKS-1-7B\"}]}";
@@ -83,6 +84,16 @@ public class RetrossTrainServiceImpl implements RetrossTrainService {
             return objectMapper.readValue(responseEntity.getBody(), RetrossResponseSeatMapDto.class);
         }
         return null;
+    }
+
+    @Override
+    public RetrossResponseChangeSeatDto changeSeat(RetrossRequestChangeSeatDto retrossRequestChangeSeatDto) throws JsonProcessingException {
+        retrossRequestChangeSeatDto.setMmid(RETROSS_ID);
+        retrossRequestChangeSeatDto.setRqid(RETROSS_PASSKEY);
+        retrossRequestChangeSeatDto.setApp(RETROSS_APP_TRANSACTION);
+        retrossRequestChangeSeatDto.setAction(RETROSS_ACTION_CHANGE_SEAT);
+        ResponseEntity<String> responseEntity = retrossTrainServiceFeignClient.book(objectMapper.writeValueAsString(retrossRequestChangeSeatDto.build()));
+        return objectMapper.readValue(responseEntity.getBody(), RetrossResponseChangeSeatDto.class);
     }
 
     @Override
