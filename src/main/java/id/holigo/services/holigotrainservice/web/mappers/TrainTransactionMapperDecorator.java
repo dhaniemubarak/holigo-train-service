@@ -60,7 +60,7 @@ public abstract class TrainTransactionMapperDecorator implements TrainTransactio
     public TrainTransactionDtoForUser trainTransactionToTrainTransactionDtoForUser(TrainTransaction trainTransaction) {
         TrainTransactionDtoForUser trainTransactionDtoForUser = this.trainTransactionMapper.trainTransactionToTrainTransactionDtoForUser(trainTransaction);
         trainTransactionDtoForUser.setIconUrl(iconUrl);
-        trainTransactionDtoForUser.setSeatMapUrl("/api/v1/train/" + trainTransactionDtoForUser.getId() + "/trips");
+        trainTransactionDtoForUser.setSeatMapUrl("/api/v1/train/transactions/" + trainTransactionDtoForUser.getId() + "/trips");
         trainTransactionDtoForUser.setTrips(trainTransaction.getTrips().stream().map(trainTransactionTrip -> trainTransactionTripMapper.trainTransactionTripToTrainTransactionTripDtoForUser(trainTransactionTrip)).collect(Collectors.toList()));
         return trainTransactionDtoForUser;
     }
