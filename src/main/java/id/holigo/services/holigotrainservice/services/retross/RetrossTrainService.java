@@ -5,13 +5,13 @@ import id.holigo.services.holigotrainservice.web.model.*;
 
 public interface RetrossTrainService {
 
-    RetrossResponseScheduleDto getSchedule(RetrossRequestScheduleDto retrossRequestScheduleDto) throws JsonProcessingException;
+    RetrossResponseScheduleDto getSchedule(RetrossRequestScheduleDto retrossRequestScheduleDto, Long userId) throws JsonProcessingException;
 
-    RetrossResponseBookDto book(RetrossRequestBookDto retrossRequestBookDto) throws JsonProcessingException;
+    RetrossResponseBookDto book(RetrossRequestBookDto retrossRequestBookDto, Long userId) throws JsonProcessingException;
 
-    RetrossResponseSeatMapDto getSeatMap(RetrossRequestSeatMapDto retrossRequestSeatMapDto) throws JsonProcessingException;
+    RetrossResponseSeatMapDto getSeatMap(RetrossRequestSeatMapDto retrossRequestSeatMapDto, Long userId) throws JsonProcessingException;
 
-    RetrossResponseChangeSeatDto changeSeat(RetrossRequestChangeSeatDto retrossRequestChangeSeatDto) throws JsonProcessingException;
+    RetrossResponseChangeSeatDto changeSeat(RetrossRequestChangeSeatDto retrossRequestChangeSeatDto, Long userId) throws JsonProcessingException;
 
-    void cancel(RetrossCancelDto retrossCancelDto) throws JsonProcessingException;
+    void cancel(RetrossCancelDto retrossCancelDto, Long userId) throws JsonProcessingException;
 }

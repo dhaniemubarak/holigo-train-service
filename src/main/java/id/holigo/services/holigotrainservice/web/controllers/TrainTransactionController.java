@@ -5,11 +5,13 @@ import id.holigo.services.common.model.OrderStatusEnum;
 import id.holigo.services.common.model.TripType;
 import id.holigo.services.holigotrainservice.domain.TrainTransaction;
 import id.holigo.services.holigotrainservice.repositories.TrainTransactionRepository;
+import id.holigo.services.holigotrainservice.repositories.TrainTransactionTripPassengerRepository;
 import id.holigo.services.holigotrainservice.services.TrainTransactionService;
 import id.holigo.services.holigotrainservice.services.retross.RetrossTrainService;
 import id.holigo.services.holigotrainservice.web.mappers.SeatMapMapper;
 import id.holigo.services.holigotrainservice.web.mappers.TrainTransactionMapper;
 import id.holigo.services.holigotrainservice.web.mappers.TrainTransactionTripMapper;
+import id.holigo.services.holigotrainservice.web.mappers.TrainTransactionTripPassengerMapper;
 import id.holigo.services.holigotrainservice.web.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -27,6 +29,10 @@ public class TrainTransactionController {
 
     private TrainTransactionRepository trainTransactionRepository;
 
+    private TrainTransactionTripPassengerRepository trainTransactionTripPassengerRepository;
+
+    private TrainTransactionTripPassengerMapper trainTransactionTripPassengerMapper;
+
     private TrainTransactionMapper trainTransactionMapper;
 
     private TrainTransactionService trainTransactionService;
@@ -36,6 +42,16 @@ public class TrainTransactionController {
     private TrainTransactionTripMapper trainTransactionTripMapper;
 
     private SeatMapMapper seatMapMapper;
+
+    @Autowired
+    public void setTrainTransactionTripPassengerMapper(TrainTransactionTripPassengerMapper trainTransactionTripPassengerMapper) {
+        this.trainTransactionTripPassengerMapper = trainTransactionTripPassengerMapper;
+    }
+
+    @Autowired
+    public void setTrainTransactionTripPassengerRepository(TrainTransactionTripPassengerRepository trainTransactionTripPassengerRepository) {
+        this.trainTransactionTripPassengerRepository = trainTransactionTripPassengerRepository;
+    }
 
     @Autowired
     public void setSeatMapMapper(SeatMapMapper seatMapMapper) {
@@ -106,7 +122,7 @@ public class TrainTransactionController {
                 retrossRequestSeatMapDto.setSelectedIdRet(trainTransaction.getTrips().get(1).getDepartureDate().toString());
             }
             try {
-                RetrossResponseSeatMapDto retrossResponseSeatMapDto = retrossTrainService.getSeatMap(retrossRequestSeatMapDto);
+                RetrossResponseSeatMapDto retrossResponseSeatMapDto = retrossTrainService.getSeatMap(retrossRequestSeatMapDto, userId);
                 departureSeatMap = seatMapMapper.retrossSeatMapDtoToSeatMapDto(retrossResponseSeatMapDto.getSeat().getDepartureSeat());
                 if (trainTransaction.getTripType().equals(TripType.R)) {
                     returnSeatMap = seatMapMapper.retrossSeatMapDtoToSeatMapDto(retrossResponseSeatMapDto.getSeat().getReturnSeat());
@@ -151,12 +167,16 @@ public class TrainTransactionController {
         retrossRequestChangeSeatDto.setTrips(trainTransactionTripDtoForUsers);
         RetrossResponseChangeSeatDto retrossResponseChangeSeatDto;
         try {
-            retrossResponseChangeSeatDto = retrossTrainService.changeSeat(retrossRequestChangeSeatDto);
+            retrossResponseChangeSeatDto = retrossTrainService.changeSeat(retrossRequestChangeSeatDto, userId);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
 
         if (retrossResponseChangeSeatDto.getError_code().equals("000")) {
+            trainTransactionTripDtoForUsers.forEach(trainTransactionTripDtoForUser -> trainTransactionTripPassengerRepository.saveAll(
+                    trainTransactionTripDtoForUser.getPassengers().stream()
+                            .map(trainTransactionTripPassengerMapper::trainTransactionTripPassengerDtoToTrainTransactionTripPassenger)
+                            .collect(Collectors.toList())));
             return new ResponseEntity<>(trainTransactionTripDtoForUsers, HttpStatus.OK);
         }
 

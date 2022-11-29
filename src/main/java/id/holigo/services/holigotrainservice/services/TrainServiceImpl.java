@@ -125,7 +125,7 @@ public class TrainServiceImpl implements TrainService {
                 .adt(inquiryDto.getAdultAmount())
                 .inf(inquiryDto.getInfantAmount())
                 .build();
-        RetrossResponseScheduleDto retrossResponseScheduleDto = retrossTrainService.getSchedule(requestScheduleDto);
+        RetrossResponseScheduleDto retrossResponseScheduleDto = retrossTrainService.getSchedule(requestScheduleDto, inquiryDto.getUserId());
         if (retrossResponseScheduleDto.getSchedule() == null) {
             return null;
         }
@@ -152,7 +152,7 @@ public class TrainServiceImpl implements TrainService {
         RetrossRequestBookDto retrossRequestBookDto = trainTransactionMapper.trainTransactionToRetrossRequestBookDto(trainTransaction);
         RetrossResponseBookDto retrossResponseBookDto;
         try {
-            retrossResponseBookDto = retrossTrainService.book(retrossRequestBookDto);
+            retrossResponseBookDto = retrossTrainService.book(retrossRequestBookDto, trainTransaction.getUserId());
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
@@ -192,7 +192,7 @@ public class TrainServiceImpl implements TrainService {
         RetrossCancelDto retrossCancelDto = RetrossCancelDto.builder()
                 .notrx(trainTransaction.getTrips().get(0).getSupplierId()).build();
         try {
-            retrossTrainService.cancel(retrossCancelDto);
+            retrossTrainService.cancel(retrossCancelDto, trainTransaction.getUserId());
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }

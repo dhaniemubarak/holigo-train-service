@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Getter
 @Setter
@@ -59,43 +60,47 @@ public class RetrossRequestBookDto implements Serializable {
             map.put("tgl_ret", getTgl_ret());
             map.put("selectedIDret", getSelectedIdRet());
         }
+        AtomicInteger adultCounter = new AtomicInteger(1);
+        AtomicInteger childCounter = new AtomicInteger(1);
+        AtomicInteger infantCounter = new AtomicInteger(1);
         for (int i = 0; i < getPassengers().size(); i++) {
             PassengerDto passengerDto = getPassengers().get(i);
             switch (passengerDto.getType()) {
                 case ADULT -> {
-                    map.put("nmadt_" + (i + 1), passengerDto.getName());
-                    map.put("hpadt_" + (i + 1), "08123456789");
+                    map.put("nmadt_" + adultCounter.get(), passengerDto.getName());
+                    map.put("hpadt_" + adultCounter.get(), i + getCptlp());
                     if (passengerDto.getIdentityCard() != null) {
-                        map.put("idadt_" + (i + 1), passengerDto.getIdentityCard().getIdCardNumber());
-                        map.put("idtypeadt_" + (i + 1), "1");
+                        map.put("idadt_" + adultCounter.get(), passengerDto.getIdentityCard().getIdCardNumber());
+                        map.put("idtypeadt_" + adultCounter.get(), "1");
                     }
                     if (passengerDto.getPassport() != null) {
-                        map.put("idadt_" + (i + 1), passengerDto.getIdentityCard().getIdCardNumber());
-                        map.put("idtypeadt_" + (i + 1), "2");
+                        map.put("idadt_" + adultCounter.get(), passengerDto.getIdentityCard().getIdCardNumber());
+                        map.put("idtypeadt_" + adultCounter.get(), "2");
                     }
+                    adultCounter.getAndIncrement();
                 }
                 case CHILD -> {
-                    map.put("nmchd_" + (i + 1), passengerDto.getName());
-                    map.put("hpchd_" + (i + 1), "08123456789");
+                    map.put("nmchd_" + childCounter.get(), passengerDto.getName());
+                    map.put("hpchd_" + childCounter.get(), i + getCptlp());
                     if (passengerDto.getIdentityCard() != null) {
-                        map.put("idchd_" + (i + 1), passengerDto.getIdentityCard().getIdCardNumber());
-                        map.put("idtypechd_" + (i + 1), "1");
+                        map.put("idchd_" + childCounter.get(), passengerDto.getIdentityCard().getIdCardNumber());
+                        map.put("idtypechd_" + childCounter.get(), "1");
                     }
                     if (passengerDto.getPassport() != null) {
-                        map.put("idadt_" + (i + 1), passengerDto.getIdentityCard().getIdCardNumber());
-                        map.put("idtypechd_" + (i + 1), "2");
+                        map.put("idadt_" + childCounter.get(), passengerDto.getIdentityCard().getIdCardNumber());
+                        map.put("idtypechd_" + childCounter.get(), "2");
                     }
                 }
                 case INFANT -> {
-                    map.put("nminf_" + (i + 1), passengerDto.getName());
-                    map.put("hpinf_" + (i + 1), "08123456789");
+                    map.put("nminf_" + infantCounter.get(), passengerDto.getName());
+                    map.put("hpinf_" + infantCounter.get(), i + getCptlp());
                     if (passengerDto.getIdentityCard() != null) {
-                        map.put("idinf_" + (i + 1), passengerDto.getIdentityCard().getIdCardNumber());
-                        map.put("idtypeinf_" + (i + 1), "1");
+                        map.put("idinf_" + infantCounter.get(), passengerDto.getIdentityCard().getIdCardNumber());
+                        map.put("idtypeinf_" + infantCounter.get(), "1");
                     }
                     if (passengerDto.getPassport() != null) {
-                        map.put("idinf_" + (i + 1), passengerDto.getIdentityCard().getIdCardNumber());
-                        map.put("idtypeinf_" + (i + 1), "2");
+                        map.put("idinf_" + infantCounter.get(), passengerDto.getIdentityCard().getIdCardNumber());
+                        map.put("idtypeinf_" + infantCounter.get(), "2");
                     }
                 }
             }
