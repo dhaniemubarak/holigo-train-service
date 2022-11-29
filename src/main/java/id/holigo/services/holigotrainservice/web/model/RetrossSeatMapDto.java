@@ -24,5 +24,5 @@ public class RetrossSeatMapDto implements Serializable {
     private String subClass;
 
     @JsonProperty("seat_map")
-    private List<RetrossWagonDto> seatMap;
+    private List<RetrossWagonDto> wagon;
 }

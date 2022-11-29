@@ -18,5 +18,5 @@ public class SeatMapDto implements Serializable {
 
     private String subClass;
 
-    private List<WagonDto> seatMap;
+    private List<WagonDto> wagon;
 }
