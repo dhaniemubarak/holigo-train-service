@@ -9,7 +9,7 @@ import org.mapstruct.Mapping;
 @Mapper(uses = {IdentityCardMapper.class, PassportMapper.class})
 public interface PassengerMapper {
 
-    @Mapping(target = "trips", ignore = true)
+    @Mapping(target = "trips",ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "phoneNumber", ignore = true)
     @Mapping(target = "id", ignore = true)

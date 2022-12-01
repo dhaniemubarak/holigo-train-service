@@ -11,11 +11,12 @@ import id.holigo.services.holigotrainservice.services.retross.RetrossTrainServic
 import id.holigo.services.holigotrainservice.web.mappers.SeatMapMapper;
 import id.holigo.services.holigotrainservice.web.mappers.TrainTransactionMapper;
 import id.holigo.services.holigotrainservice.web.mappers.TrainTransactionTripMapper;
-import id.holigo.services.holigotrainservice.web.mappers.TrainTransactionTripPassengerMapper;
 import id.holigo.services.holigotrainservice.web.model.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -24,14 +25,13 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RestController
 public class TrainTransactionController {
 
     private TrainTransactionRepository trainTransactionRepository;
 
     private TrainTransactionTripPassengerRepository trainTransactionTripPassengerRepository;
-
-    private TrainTransactionTripPassengerMapper trainTransactionTripPassengerMapper;
 
     private TrainTransactionMapper trainTransactionMapper;
 
@@ -42,11 +42,6 @@ public class TrainTransactionController {
     private TrainTransactionTripMapper trainTransactionTripMapper;
 
     private SeatMapMapper seatMapMapper;
-
-    @Autowired
-    public void setTrainTransactionTripPassengerMapper(TrainTransactionTripPassengerMapper trainTransactionTripPassengerMapper) {
-        this.trainTransactionTripPassengerMapper = trainTransactionTripPassengerMapper;
-    }
 
     @Autowired
     public void setTrainTransactionTripPassengerRepository(TrainTransactionTripPassengerRepository trainTransactionTripPassengerRepository) {
@@ -150,6 +145,7 @@ public class TrainTransactionController {
 //        return new ResponseEntity<>(trainTransactionMapper.trainTransactionToTrainTransactionDtoForUser(trainTransaction), HttpStatus.OK);
     }
 
+    @Transactional
     @PutMapping("/api/v1/train/transactions/{id}/trips")
     public ResponseEntity<List<TrainTransactionTripDtoForUser>> updateSeatPassenger(@PathVariable("id") Long id,
                                                                                     @RequestBody List<TrainTransactionTripDtoForUser> trainTransactionTripDtoForUsers,
@@ -173,11 +169,9 @@ public class TrainTransactionController {
         }
 
         if (retrossResponseChangeSeatDto.getError_code().equals("000")) {
-            trainTransactionTripDtoForUsers.forEach(trainTransactionTripDtoForUser -> trainTransactionTripPassengerRepository.saveAll(
-                    trainTransactionTripDtoForUser.getPassengers().stream()
-                            .map(trainTransactionTripPassengerMapper::trainTransactionTripPassengerDtoToTrainTransactionTripPassenger)
-                            .collect(Collectors.toList())));
-            return new ResponseEntity<>(trainTransactionTripDtoForUsers, HttpStatus.OK);
+        trainTransactionTripDtoForUsers.forEach(trainTransactionTripDtoForUser -> trainTransactionTripDtoForUser.getPassengers().forEach(passengerDto -> trainTransactionTripPassengerRepository.updateSeatPassenger(passengerDto.getId(), passengerDto.getSeatNumber()))
+        );
+        return new ResponseEntity<>(trainTransactionTripDtoForUsers, HttpStatus.OK);
         }
 
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

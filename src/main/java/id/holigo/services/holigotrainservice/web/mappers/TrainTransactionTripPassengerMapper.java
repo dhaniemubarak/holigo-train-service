@@ -10,6 +10,7 @@ import org.mapstruct.Mapping;
 public interface TrainTransactionTripPassengerMapper {
     TrainTransactionTripPassengerDto trainTransactionTripPassengerToTrainTransactionTripPassengerDto(TrainTransactionTripPassenger trainTransactionTripPassenger);
 
+    @Mapping(target = "trip", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     TrainTransactionTripPassenger trainTransactionTripPassengerDtoToTrainTransactionTripPassenger(TrainTransactionTripPassengerDto trainTransactionTripPassenger);

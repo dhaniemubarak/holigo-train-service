@@ -15,10 +15,12 @@ import java.util.UUID;
 @AllArgsConstructor
 public class TrainTransactionTripPassengerDto implements Serializable {
 
-    private  UUID id;
+    private UUID id;
 
     private PassengerDto passenger;
 
     private String seatNumber;
+
+    private Integer sort;
 
 }

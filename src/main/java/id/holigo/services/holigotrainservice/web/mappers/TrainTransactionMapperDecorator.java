@@ -102,7 +102,7 @@ public abstract class TrainTransactionMapperDecorator implements TrainTransactio
             retrossRequestBookDto.setSelectedIdRet(trainTransaction.getTrips().get(1).getSupplierSelectedId());
         }
         retrossRequestBookDto.setPassengers(
-                trainTransactionTripPassengerRepository.findAllByTripId(trainTransaction.getTrips().get(0).getId()).stream().map(passengerMapper::trainTransactionTripPassengerToPassengerDto).collect(Collectors.toList()));
+                trainTransactionTripPassengerRepository.findAllByTripIdOrderBySortAsc(trainTransaction.getTrips().get(0).getId()).stream().map(passengerMapper::trainTransactionTripPassengerToPassengerDto).collect(Collectors.toList()));
         return retrossRequestBookDto;
     }
 }

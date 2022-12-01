@@ -170,10 +170,10 @@ public class TrainServiceImpl implements TrainService {
         }
         for (TrainTransactionTrip trainTransactionTrip : trainTransaction.getTrips()) {
             AtomicInteger passengerCounter = new AtomicInteger();
-            for (TrainTransactionTripPassenger trainTransactionTripPassenger : trainTransactionTripPassengerRepository.findAllByTripId(trainTransactionTrip.getId())) {
+            for (TrainTransactionTripPassenger trainTransactionTripPassenger : trainTransactionTripPassengerRepository.findAllByTripIdOrderBySortAsc(trainTransactionTrip.getId())) {
                 if (trainTransactionTripPassenger.getPassenger().getType().equals(PassengerType.ADULT)) {
                     retrossResponseBookDto.getPassengers().forEach(retrossPassengerDto -> {
-                        if (retrossPassengerDto.getNama().contains(trainTransactionTripPassenger.getPassenger().getName())) {
+                        if (retrossPassengerDto.getNama().split(" ")[0].contains(trainTransactionTripPassenger.getPassenger().getName().split(" ")[0])) {
                             trainTransactionTripPassenger.setSeatNumber(
                                     (tripCounter.get() == 0) ? retrossPassengerDto.getSeat_dep()
                                             : retrossPassengerDto.getSeat_ret());
