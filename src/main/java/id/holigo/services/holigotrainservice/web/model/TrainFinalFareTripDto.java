@@ -40,5 +40,11 @@ public class TrainFinalFareTripDto implements Serializable {
 
     private BigDecimal fareAmount;
 
+    private BigDecimal adminAmount;
+
+    private BigDecimal hpAmount;
+
+    private BigDecimal hpcAmount;
+
     private Integer segment;
 }
