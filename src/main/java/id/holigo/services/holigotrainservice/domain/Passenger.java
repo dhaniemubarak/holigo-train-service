@@ -46,6 +46,8 @@ public class Passenger {
     @OneToMany(mappedBy = "passenger")
     private Set<TrainTransactionTripPassenger> trips;
 
+    private Integer sort;
+
     @CreationTimestamp
     private Timestamp createdAt;
 

@@ -3,6 +3,7 @@ package id.holigo.services.holigotrainservice.services;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import id.holigo.services.common.model.FareDto;
+import id.holigo.services.common.model.PassengerType;
 import id.holigo.services.common.model.TripType;
 import id.holigo.services.holigotrainservice.components.Fare;
 import id.holigo.services.holigotrainservice.config.FeeConfig;
@@ -12,6 +13,7 @@ import id.holigo.services.holigotrainservice.repositories.TrainFinalFareReposito
 import id.holigo.services.holigotrainservice.repositories.TrainTransactionTripPassengerRepository;
 import id.holigo.services.holigotrainservice.repositories.TrainTransactionTripRepository;
 import id.holigo.services.holigotrainservice.services.retross.RetrossTrainService;
+import id.holigo.services.holigotrainservice.web.exceptions.BookException;
 import id.holigo.services.holigotrainservice.web.exceptions.FinalFareBadRequestException;
 import id.holigo.services.holigotrainservice.web.mappers.InquiryMapper;
 import id.holigo.services.holigotrainservice.web.mappers.TrainAvailabilityMapper;
@@ -23,6 +25,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -156,28 +160,36 @@ public class TrainServiceImpl implements TrainService {
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
-        int tripCounter = 0;
+        AtomicInteger tripCounter = new AtomicInteger();
+        if (retrossResponseBookDto.getError_code().equals("001")) {
+            orderTrainTransactionService.bookingFail(trainTransaction.getId());
+            paymentTrainTransactionService.paymentHasCanceled(trainTransaction.getId());
+            throw new BookException();
+        } else {
+            orderTrainTransactionService.booked(trainTransaction.getId());
+        }
         for (TrainTransactionTrip trainTransactionTrip : trainTransaction.getTrips()) {
-            if (retrossResponseBookDto.getError_code().equals("001")) {
-                orderTrainTransactionService.bookingFail(trainTransaction.getId());
-                paymentTrainTransactionService.paymentHasCanceled(trainTransaction.getId());
-                continue;
-            }
-            int passengerCounter = 0;
+            AtomicInteger passengerCounter = new AtomicInteger();
             for (TrainTransactionTripPassenger trainTransactionTripPassenger : trainTransactionTripPassengerRepository.findAllByTripId(trainTransactionTrip.getId())) {
-                trainTransactionTripPassenger.setSeatNumber(
-                        (tripCounter == 0) ? retrossResponseBookDto.getPassengers().get(passengerCounter).getSeat_dep()
-                                : retrossResponseBookDto.getPassengers().get(passengerCounter).getSeat_ret());
-                trainTransactionTripPassengerRepository.save(trainTransactionTripPassenger);
-                passengerCounter++;
+                if (trainTransactionTripPassenger.getPassenger().getType().equals(PassengerType.ADULT)) {
+                    retrossResponseBookDto.getPassengers().forEach(retrossPassengerDto -> {
+                        if (retrossPassengerDto.getNama().contains(trainTransactionTripPassenger.getPassenger().getName())) {
+                            trainTransactionTripPassenger.setSeatNumber(
+                                    (tripCounter.get() == 0) ? retrossPassengerDto.getSeat_dep()
+                                            : retrossPassengerDto.getSeat_ret());
+                            trainTransactionTripPassengerRepository.save(trainTransactionTripPassenger);
+                        }
+                    });
+                }
+                passengerCounter.getAndIncrement();
             }
+
             trainTransactionTrip.setSupplierId(retrossResponseBookDto.getSupplierId());
             trainTransactionTrip.setBookCode(
-                    (tripCounter == 0) ? retrossResponseBookDto.getBookCodeDeparture()
+                    (tripCounter.get() == 0) ? retrossResponseBookDto.getBookCodeDeparture()
                             : retrossResponseBookDto.getBookCodeReturn());
             trainTransactionTripRepository.save(trainTransactionTrip);
-            orderTrainTransactionService.bookingSuccess(trainTransaction.getId());
-            tripCounter++;
+            tripCounter.getAndIncrement();
         }
     }
 
@@ -203,13 +215,13 @@ public class TrainServiceImpl implements TrainService {
     @Transactional
     @Override
     public TrainFinalFare createFinalFare(RequestFinalFareDto requestFinalFareDto, Long userId) {
-        FareDto fareDto = fare.getFare(userId);
+        FareDto fareDto = fare.getFare(userId, requestFinalFareDto.getTrips().size() != 1);
         TrainFinalFare trainFinalFare = new TrainFinalFare();
         trainFinalFare.setId(UUID.randomUUID());
         trainFinalFare.setInquiry(inquiryMapper.inquiryDtoToInquiry(requestFinalFareDto.getTrips().get(0).getInquiry()));
         trainFinalFare.setUserId(userId);
         trainFinalFare.setIsBookable(true);
-        trainFinalFare.setNtaAmount(FeeConfig.ADMIN_AMOUNT.subtract(FeeConfig.NRA_AMOUNT));
+        trainFinalFare.setNtaAmount(BigDecimal.valueOf(0.00));
         trainFinalFare.setNraAmount(FeeConfig.NRA_AMOUNT);
         trainFinalFare.setCpAmount(fareDto.getCpAmount());
         trainFinalFare.setMpAmount(fareDto.getMpAmount());
@@ -249,22 +261,29 @@ public class TrainServiceImpl implements TrainService {
             }
             trainFinalFareTrip.setSupplierId(trainAvailabilityFareDto.getSelectedId());
             trainFinalFareTrip.setFareAmount(trainAvailabilityFareDto.getFareAmount());
-            if (tripDto.getInquiry().getTripType() != TripType.R && segment.get() != 1) {
-                trainFinalFareTrip.setAdminAmount(trainFinalFare.getAdminAmount());
-                trainFinalFareTrip.setNraAmount(trainFinalFare.getNraAmount());
-                trainFinalFareTrip.setNtaAmount(trainFinalFare.getFareAmount()
-                        .add(trainFinalFareTrip.getAdminAmount().subtract(trainFinalFare.getNraAmount())));
-                trainFinalFareTrip.setCpAmount(trainFinalFare.getCpAmount());
-                trainFinalFareTrip.setMpAmount(trainFinalFare.getMpAmount());
-                trainFinalFareTrip.setIpAmount(trainFinalFare.getIpAmount());
-                trainFinalFareTrip.setHpcAmount(trainFinalFare.getHpAmount());
-                trainFinalFareTrip.setHvAmount(trainFinalFare.getHvAmount());
-                trainFinalFareTrip.setPrAmount(trainFinalFare.getPrAmount());
-                trainFinalFareTrip.setIpcAmount(trainFinalFare.getIpcAmount());
-                trainFinalFareTrip.setHpcAmount(trainFinalFare.getHpcAmount());
-                trainFinalFareTrip.setPrcAmount(trainFinalFare.getPrcAmount());
-                trainFinalFareTrip.setLossAmount(trainFinalFare.getLossAmount());
-            }
+            trainFinalFareTrip.setAdminAmount(FeeConfig.ADMIN_AMOUNT);
+            trainFinalFareTrip.setNraAmount(FeeConfig.NRA_AMOUNT);
+            trainFinalFareTrip.setNtaAmount(trainAvailabilityFareDto.getFareAmount());
+            BigDecimal cpAmount = trainFinalFare.getCpAmount();
+            BigDecimal mpAmount = trainFinalFare.getMpAmount();
+            BigDecimal ipAmount = trainFinalFare.getIpAmount();
+            BigDecimal hpAmount = trainFinalFare.getHpAmount();
+            BigDecimal hvAmount = trainFinalFare.getHvAmount();
+            BigDecimal prAmount = trainFinalFare.getPrAmount();
+            BigDecimal ipcAmount = trainFinalFare.getIpcAmount();
+            BigDecimal hpcAmount = trainFinalFare.getHpcAmount();
+            BigDecimal prcAmount = trainFinalFare.getPrcAmount();
+            BigDecimal lossAmount = trainFinalFare.getLossAmount();
+            trainFinalFareTrip.setCpAmount(trainFinalFare.getInquiry().getTripType().equals(TripType.R) ? cpAmount.divide(BigDecimal.valueOf(2), RoundingMode.UP) : trainFinalFare.getCpAmount());
+            trainFinalFareTrip.setMpAmount(trainFinalFare.getInquiry().getTripType().equals(TripType.R) ? mpAmount.divide(BigDecimal.valueOf(2), RoundingMode.UP) : trainFinalFare.getMpAmount());
+            trainFinalFareTrip.setIpAmount(trainFinalFare.getInquiry().getTripType().equals(TripType.R) ? ipAmount.divide(BigDecimal.valueOf(2), RoundingMode.UP) : trainFinalFare.getIpAmount());
+            trainFinalFareTrip.setHpAmount(trainFinalFare.getInquiry().getTripType().equals(TripType.R) ? hpAmount.divide(BigDecimal.valueOf(2), RoundingMode.UP) : trainFinalFare.getHpAmount());
+            trainFinalFareTrip.setHvAmount(trainFinalFare.getInquiry().getTripType().equals(TripType.R) ? hvAmount.divide(BigDecimal.valueOf(2), RoundingMode.UP) : trainFinalFare.getHvAmount());
+            trainFinalFareTrip.setPrAmount(trainFinalFare.getInquiry().getTripType().equals(TripType.R) ? prAmount.divide(BigDecimal.valueOf(2), RoundingMode.UP) : trainFinalFare.getPrAmount());
+            trainFinalFareTrip.setIpcAmount(trainFinalFare.getInquiry().getTripType().equals(TripType.R) ? ipcAmount.divide(BigDecimal.valueOf(2), RoundingMode.UP) : trainFinalFare.getIpcAmount());
+            trainFinalFareTrip.setHpcAmount(trainFinalFare.getInquiry().getTripType().equals(TripType.R) ? hpcAmount.divide(BigDecimal.valueOf(2), RoundingMode.UP) : trainFinalFare.getHpcAmount());
+            trainFinalFareTrip.setPrcAmount(trainFinalFare.getInquiry().getTripType().equals(TripType.R) ? prcAmount.divide(BigDecimal.valueOf(2), RoundingMode.UP) : trainFinalFare.getPrcAmount());
+            trainFinalFareTrip.setLossAmount(trainFinalFare.getInquiry().getTripType().equals(TripType.R) ? lossAmount.divide(BigDecimal.valueOf(2), RoundingMode.UP) : trainFinalFare.getLossAmount());
             trainFinalFare.setNtaAmount(trainFinalFare.getNtaAmount().add(trainFinalFareTrip.getFareAmount()));
             trainFinalFare.setFareAmount(trainFinalFare.getFareAmount().add(trainFinalFareTrip.getFareAmount()));
             trainFinalFare.addToTrips(trainFinalFareTrip);

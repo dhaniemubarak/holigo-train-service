@@ -20,11 +20,11 @@ public class Fare {
         this.fareService = fareService;
     }
 
-    public FareDto getFare(Long userId) {
+    public FareDto getFare(Long userId, boolean roundTrip) {
         FareDetailDto fareDetailDto = FareDetailDto.builder()
                 .userId(userId)
                 .productId(3)
-                .nraAmount(FeeConfig.NRA_AMOUNT)
+                .nraAmount(roundTrip ? FeeConfig.NRA_AMOUNT.multiply(BigDecimal.valueOf(2)) : FeeConfig.NRA_AMOUNT)
                 .ntaAmount(BigDecimal.valueOf(0.00)).build();
         FareDto fareDto;
         fareDto = fareService.getFareDetail(fareDetailDto);

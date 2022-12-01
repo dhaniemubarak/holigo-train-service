@@ -23,6 +23,8 @@ public class TrainAvailabilityFareDto implements Serializable {
 
     private BigDecimal hpAmount;
 
+    private BigDecimal hpcAmount;
+
     private BigDecimal fareAmount;
 
     private BigDecimal priceAdult;

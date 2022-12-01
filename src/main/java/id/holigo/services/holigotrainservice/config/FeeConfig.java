@@ -6,5 +6,5 @@ public class FeeConfig {
 
     public static final BigDecimal ADMIN_AMOUNT = BigDecimal.valueOf(7500.00);
 
-    public static final BigDecimal NRA_AMOUNT = BigDecimal.valueOf(5000.00);
+    public static final BigDecimal NRA_AMOUNT = BigDecimal.valueOf(7500.00);
 }

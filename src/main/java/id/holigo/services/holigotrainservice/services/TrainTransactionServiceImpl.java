@@ -169,6 +169,7 @@ public class TrainTransactionServiceImpl implements TrainTransactionService {
                 TrainTransactionTripPassenger trainTransactionTripPassenger = new TrainTransactionTripPassenger();
                 trainTransactionTripPassenger.setTrip(trainTransactionTrip);
                 trainTransactionTripPassenger.setPassenger(passenger);
+                trainTransactionTripPassenger.setSort(passenger.getSort());
                 trainTransactionTripPassengers.add(trainTransactionTripPassenger);
             });
         });

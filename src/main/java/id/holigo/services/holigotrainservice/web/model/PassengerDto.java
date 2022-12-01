@@ -24,4 +24,6 @@ public class PassengerDto implements Serializable {
     private IdentityCardDto identityCard;
 
     private PassportDto passport;
+
+    private Integer sort;
 }

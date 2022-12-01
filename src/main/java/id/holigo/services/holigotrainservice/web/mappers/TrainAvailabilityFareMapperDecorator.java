@@ -26,7 +26,7 @@ public abstract class TrainAvailabilityFareMapperDecorator implements TrainAvail
         trainAvailabilityFareDto.setPriceAdult(trainAvailabilityFareDto.getPriceAdult().setScale(2, RoundingMode.UP));
         trainAvailabilityFareDto.setPriceChild(trainAvailabilityFareDto.getPriceChild().setScale(2, RoundingMode.UP));
         trainAvailabilityFareDto.setPriceInfant(trainAvailabilityFareDto.getPriceInfant().setScale(2, RoundingMode.UP));
-        FareDto fareDto = fare.getFare(userId);
+        FareDto fareDto = fare.getFare(userId, false);
         assert fareDto != null;
         trainAvailabilityFareDto.setHpAmount(fareDto.getHpAmount());
         if (retrossFareDto.getSelectedIdDep() != null) {

@@ -37,6 +37,8 @@ public class TrainTransactionTripPassenger {
 
     private String seatNumber;
 
+    private Integer sort;
+
     @CreationTimestamp
     private Timestamp createdAt;
 

@@ -32,6 +32,7 @@ public class TrainTransactionTrip {
     private TrainTransaction transaction;
 
     @OneToMany(mappedBy = "trip")
+    @OrderBy("sort")
     private List<TrainTransactionTripPassenger> passengers = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)

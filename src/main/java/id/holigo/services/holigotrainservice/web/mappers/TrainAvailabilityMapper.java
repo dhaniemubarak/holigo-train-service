@@ -35,6 +35,7 @@ public interface TrainAvailabilityMapper {
     @Mapping(target = "createdAt", ignore = true)
     TrainAvailability trainAvailabilityDtoToTrainAvailability(TrainAvailabilityDto trainAvailabilityDto);
 
+    @Mapping(target = "segment", ignore = true)
     @Mapping(target = "supplierId", ignore = true)
     @Mapping(target = "prcAmount", ignore = true)
     @Mapping(target = "prAmount", ignore = true)
