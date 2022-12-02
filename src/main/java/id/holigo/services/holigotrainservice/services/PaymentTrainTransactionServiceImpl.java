@@ -32,6 +32,12 @@ public class PaymentTrainTransactionServiceImpl implements PaymentTrainTransacti
     }
 
     @Override
+    public void paymentHasSelected(Long id) {
+        StateMachine<PaymentStatusEnum, PaymentStatusEvent> sm = build(id);
+        sendEvent(id, sm, PaymentStatusEvent.PAYMENT_SELECTED);
+    }
+
+    @Override
     public StateMachine<PaymentStatusEnum, PaymentStatusEvent> paymentHasPaid(Long id) {
         StateMachine<PaymentStatusEnum, PaymentStatusEvent> sm = build(id);
         sendEvent(id, sm, PaymentStatusEvent.PAYMENT_PAID);

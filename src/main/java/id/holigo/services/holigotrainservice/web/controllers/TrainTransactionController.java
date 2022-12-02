@@ -159,7 +159,7 @@ public class TrainTransactionController {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         RetrossRequestChangeSeatDto retrossRequestChangeSeatDto = new RetrossRequestChangeSeatDto();
-        retrossRequestChangeSeatDto.setNotrx(trainTransaction.getTrips().get(0).getSupplierId());
+        retrossRequestChangeSeatDto.setNotrx(trainTransaction.getTrips().get(0).getSupplierTransactionId());
         retrossRequestChangeSeatDto.setTrips(trainTransactionTripDtoForUsers);
         RetrossResponseChangeSeatDto retrossResponseChangeSeatDto;
         try {

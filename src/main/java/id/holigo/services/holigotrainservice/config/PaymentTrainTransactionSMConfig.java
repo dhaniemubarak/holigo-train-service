@@ -48,7 +48,9 @@ public class PaymentTrainTransactionSMConfig extends StateMachineConfigurerAdapt
     @Override
     public void configure(StateMachineTransitionConfigurer<PaymentStatusEnum, PaymentStatusEvent> transitions)
             throws Exception {
-        transitions.withExternal().source(PaymentStatusEnum.WAITING_PAYMENT).target(PaymentStatusEnum.PAID)
+        transitions.withExternal().source(PaymentStatusEnum.SELECTING_PAYMENT).target(PaymentStatusEnum.WAITING_PAYMENT)
+                .event(PaymentStatusEvent.PAYMENT_SELECTED).action(paymentHasSelected())
+                .and().withExternal().source(PaymentStatusEnum.WAITING_PAYMENT).target(PaymentStatusEnum.PAID)
                 .event(PaymentStatusEvent.PAYMENT_PAID).action(paymentHasPaid())
                 .and().withExternal().source(PaymentStatusEnum.SELECTING_PAYMENT).target(PaymentStatusEnum.PAYMENT_EXPIRED)
                 .event(PaymentStatusEvent.PAYMENT_EXPIRED).action(paymentHasExpired())
@@ -111,6 +113,19 @@ public class PaymentTrainTransactionSMConfig extends StateMachineConfigurerAdapt
                             PaymentTrainTransactionServiceImpl.TRAIN_TRANSACTION_HEADER).toString()));
             trainTransaction.getTrips().forEach(trainTransactionTrip -> {
                 trainTransactionTrip.setPaymentStatus(PaymentStatusEnum.PAYMENT_CANCELED);
+                trainTransactionTripRepository.save(trainTransactionTrip);
+            });
+        };
+    }
+
+    @Bean
+    public Action<PaymentStatusEnum, PaymentStatusEvent> paymentHasSelected() {
+        return stateContext -> {
+            TrainTransaction trainTransaction = trainTransactionRepository.getReferenceById(
+                    Long.parseLong(stateContext.getMessageHeader(
+                            PaymentTrainTransactionServiceImpl.TRAIN_TRANSACTION_HEADER).toString()));
+            trainTransaction.getTrips().forEach(trainTransactionTrip -> {
+                trainTransactionTrip.setPaymentStatus(PaymentStatusEnum.WAITING_PAYMENT);
                 trainTransactionTripRepository.save(trainTransactionTrip);
             });
         };

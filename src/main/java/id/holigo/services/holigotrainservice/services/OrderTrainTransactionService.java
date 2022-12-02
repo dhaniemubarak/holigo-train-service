@@ -6,13 +6,19 @@ import org.springframework.statemachine.StateMachine;
 
 public interface OrderTrainTransactionService {
 
-    StateMachine<OrderStatusEnum, OrderStatusEvent> booked(Long id);
+    void booked(Long id);
 
     void bookingFail(Long id);
 
     void bookingSuccess(Long id);
 
-    void processIssued(Long id);
+    StateMachine<OrderStatusEnum, OrderStatusEvent> processIssued(Long id);
+
+    StateMachine<OrderStatusEnum, OrderStatusEvent> issued(Long id);
 
     void cancelTransaction(Long id);
+
+    StateMachine<OrderStatusEnum, OrderStatusEvent> orderHasExpired(Long id);
+
+    StateMachine<OrderStatusEnum, OrderStatusEvent> orderHasCanceled(Long id);
 }

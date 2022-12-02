@@ -31,10 +31,9 @@ public class OrderTrainTransactionServiceImpl implements OrderTrainTransactionSe
     }
 
     @Override
-    public StateMachine<OrderStatusEnum, OrderStatusEvent> booked(Long id) {
+    public void booked(Long id) {
         StateMachine<OrderStatusEnum, OrderStatusEvent> sm = build(id);
         sendEvent(id, sm, OrderStatusEvent.BOOK_SUCCESS);
-        return sm;
     }
 
     @Override
@@ -50,15 +49,37 @@ public class OrderTrainTransactionServiceImpl implements OrderTrainTransactionSe
     }
 
     @Override
-    public void processIssued(Long trainTransactionId) {
+    public StateMachine<OrderStatusEnum, OrderStatusEvent> processIssued(Long trainTransactionId) {
         StateMachine<OrderStatusEnum, OrderStatusEvent> sm = build(trainTransactionId);
         sendEvent(trainTransactionId, sm, OrderStatusEvent.PROCESS_ISSUED);
+        return sm;
+    }
+
+    @Override
+    public StateMachine<OrderStatusEnum, OrderStatusEvent> issued(Long id) {
+        StateMachine<OrderStatusEnum, OrderStatusEvent> sm = build(id);
+        sendEvent(id, sm, OrderStatusEvent.ISSUED_SUCCESS);
+        return sm;
     }
 
     @Override
     public void cancelTransaction(Long id) {
         StateMachine<OrderStatusEnum, OrderStatusEvent> sm = build(id);
         sendEvent(id, sm, OrderStatusEvent.ORDER_CANCEL);
+    }
+
+    @Override
+    public StateMachine<OrderStatusEnum, OrderStatusEvent> orderHasExpired(Long id) {
+        StateMachine<OrderStatusEnum, OrderStatusEvent> sm = build(id);
+        sendEvent(id, sm, OrderStatusEvent.ORDER_EXPIRE);
+        return sm;
+    }
+
+    @Override
+    public StateMachine<OrderStatusEnum, OrderStatusEvent> orderHasCanceled(Long id) {
+        StateMachine<OrderStatusEnum, OrderStatusEvent> sm = build(id);
+        sendEvent(id, sm, OrderStatusEvent.ORDER_CANCEL);
+        return sm;
     }
 
     private void sendEvent(Long trainTransactionTripId, StateMachine<OrderStatusEnum, OrderStatusEvent> sm,

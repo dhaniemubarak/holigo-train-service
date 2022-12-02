@@ -5,6 +5,9 @@ import id.holigo.services.holigotrainservice.events.PaymentStatusEvent;
 import org.springframework.statemachine.StateMachine;
 
 public interface PaymentTrainTransactionService {
+
+    void paymentHasSelected(Long id);
+
     StateMachine<PaymentStatusEnum, PaymentStatusEvent> paymentHasPaid(Long id);
 
     void paymentHasCanceled(Long id);

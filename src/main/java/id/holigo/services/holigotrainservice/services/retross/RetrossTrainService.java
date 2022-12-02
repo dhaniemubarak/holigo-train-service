@@ -1,6 +1,7 @@
 package id.holigo.services.holigotrainservice.services.retross;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import id.holigo.services.holigotrainservice.domain.TrainTransaction;
 import id.holigo.services.holigotrainservice.web.model.*;
 
 public interface RetrossTrainService {
@@ -14,4 +15,6 @@ public interface RetrossTrainService {
     RetrossResponseChangeSeatDto changeSeat(RetrossRequestChangeSeatDto retrossRequestChangeSeatDto, Long userId) throws JsonProcessingException;
 
     void cancel(RetrossCancelDto retrossCancelDto, Long userId) throws JsonProcessingException;
+
+    Boolean issued(TrainTransaction trainTransaction) throws JsonProcessingException;
 }

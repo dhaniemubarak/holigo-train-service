@@ -2,17 +2,17 @@ package id.holigo.services.holigotrainservice.services;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import id.holigo.services.common.model.FareDto;
-import id.holigo.services.common.model.PassengerType;
-import id.holigo.services.common.model.TripType;
+import id.holigo.services.common.model.*;
 import id.holigo.services.holigotrainservice.components.Fare;
 import id.holigo.services.holigotrainservice.config.FeeConfig;
 import id.holigo.services.holigotrainservice.domain.*;
+import id.holigo.services.holigotrainservice.events.OrderStatusEvent;
 import id.holigo.services.holigotrainservice.repositories.TrainAvailabilityRepository;
 import id.holigo.services.holigotrainservice.repositories.TrainFinalFareRepository;
 import id.holigo.services.holigotrainservice.repositories.TrainTransactionTripPassengerRepository;
 import id.holigo.services.holigotrainservice.repositories.TrainTransactionTripRepository;
 import id.holigo.services.holigotrainservice.services.retross.RetrossTrainService;
+import id.holigo.services.holigotrainservice.services.transaction.TransactionService;
 import id.holigo.services.holigotrainservice.web.exceptions.BookException;
 import id.holigo.services.holigotrainservice.web.exceptions.FinalFareBadRequestException;
 import id.holigo.services.holigotrainservice.web.mappers.InquiryMapper;
@@ -22,6 +22,7 @@ import id.holigo.services.holigotrainservice.web.model.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.statemachine.StateMachine;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -57,6 +58,13 @@ public class TrainServiceImpl implements TrainService {
     private TrainTransactionTripPassengerRepository trainTransactionTripPassengerRepository;
 
     private TrainTransactionTripRepository trainTransactionTripRepository;
+
+    private TransactionService transactionService;
+
+    @Autowired
+    public void setTransactionService(TransactionService transactionService) {
+        this.transactionService = transactionService;
+    }
 
     @Autowired
     public void setOrderTrainTransactionService(OrderTrainTransactionService orderTrainTransactionService) {
@@ -184,7 +192,7 @@ public class TrainServiceImpl implements TrainService {
                 passengerCounter.getAndIncrement();
             }
 
-            trainTransactionTrip.setSupplierId(retrossResponseBookDto.getSupplierId());
+            trainTransactionTrip.setSupplierTransactionId(retrossResponseBookDto.getSupplierId());
             trainTransactionTrip.setBookCode(
                     (tripCounter.get() == 0) ? retrossResponseBookDto.getBookCodeDeparture()
                             : retrossResponseBookDto.getBookCodeReturn());
@@ -195,14 +203,27 @@ public class TrainServiceImpl implements TrainService {
 
     @Override
     public void issued(TrainTransaction trainTransaction) {
-        // TODO issued
+        Boolean isIssued;
+        try {
+            isIssued = retrossTrainService.issued(trainTransaction);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+        if (isIssued) {
+            StateMachine<OrderStatusEnum, OrderStatusEvent> sm = orderTrainTransactionService.issued(trainTransaction.getId());
+            if (sm.getState().getId().equals(OrderStatusEnum.ISSUED)) {
+                transactionService.updateOrderStatusTransaction(TransactionDto.builder()
+                        .orderStatus(OrderStatusEnum.ISSUED)
+                        .id(trainTransaction.getTransactionId()).build());
+            }
+        }
     }
 
     @Override
     public void cancelBook(TrainTransaction trainTransaction) {
 
         RetrossCancelDto retrossCancelDto = RetrossCancelDto.builder()
-                .notrx(trainTransaction.getTrips().get(0).getSupplierId()).build();
+                .notrx(trainTransaction.getTrips().get(0).getSupplierTransactionId()).build();
         try {
             retrossTrainService.cancel(retrossCancelDto, trainTransaction.getUserId());
         } catch (JsonProcessingException e) {

@@ -3,6 +3,7 @@ package id.holigo.services.holigotrainservice.services.retross;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import id.holigo.services.common.model.SupplierLogDto;
+import id.holigo.services.holigotrainservice.domain.TrainTransaction;
 import id.holigo.services.holigotrainservice.services.logs.LogService;
 import id.holigo.services.holigotrainservice.web.model.*;
 import lombok.RequiredArgsConstructor;
@@ -127,7 +128,23 @@ public class RetrossTrainServiceImpl implements RetrossTrainService {
         retrossCancelDto.setMmid("holivers");
         retrossCancelDto.setRqid("HOLI**********************GO");
         sentLog(userId, objectMapper.writeValueAsString(retrossCancelDto), objectMapper.writeValueAsString(responseEntity));
-        objectMapper.readValue(responseEntity.getBody(), RetrossCancelDto.class);
+    }
+
+    @Override
+    public Boolean issued(TrainTransaction trainTransaction) throws JsonProcessingException {
+        RetrossRequestIssuesDto retrossRequestIssuesDto = RetrossRequestIssuesDto.builder()
+                .action("issued")
+                .app("transaction")
+                .rqid(RETROSS_PASSKEY)
+                .mmid(RETROSS_ID)
+                .notrx(trainTransaction.getTrips().get(0).getSupplierTransactionId()).build();
+        ResponseEntity<String> responseEntity = retrossTrainServiceFeignClient.issued(objectMapper.writeValueAsString(retrossRequestIssuesDto));
+        retrossRequestIssuesDto.setMmid("holivers");
+        retrossRequestIssuesDto.setRqid("HOLI**********************GO");
+        sentLog(trainTransaction.getUserId(), objectMapper.writeValueAsString(retrossRequestIssuesDto), objectMapper.writeValueAsString(responseEntity));
+        RetrossResponseIssuedDto retrossResponseIssuedDto = objectMapper.readValue(responseEntity.getBody(), RetrossResponseIssuedDto.class);
+        return retrossResponseIssuedDto.getError_code().equals("000");
+
     }
 
     private void sentLog(Long userId, String request, String response) {

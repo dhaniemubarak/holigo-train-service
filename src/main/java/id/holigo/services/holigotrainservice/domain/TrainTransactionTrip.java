@@ -121,7 +121,7 @@ public class TrainTransactionTrip {
     private BigDecimal lossAmount;
 
     @Column(length = 50, columnDefinition = "varchar(50)")
-    private String supplierId;
+    private String supplierTransactionId;
 
     @Column(length = 20, columnDefinition = "varchar(20)")
     private String supplierSelectedId;
