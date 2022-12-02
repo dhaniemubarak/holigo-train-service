@@ -77,7 +77,7 @@ public class KafkaListeners {
     }
 
     @Transactional
-    @KafkaListener(topics = KafkaTopicConfig.UPDATE_PAYMENT_STATUS_TRAIN_TRANSACTION, groupId = "payment-status-airlines-transaction", containerFactory = "airlinesTransactionListenerFactory")
+    @KafkaListener(topics = KafkaTopicConfig.UPDATE_PAYMENT_STATUS_TRAIN_TRANSACTION, groupId = "payment-status-train-transaction", containerFactory = "trainTransactionListenerFactory")
     void updatePaymentStatus(TrainTransactionDtoForUser trainTransactionDtoForUser) {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
