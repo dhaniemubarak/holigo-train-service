@@ -13,12 +13,12 @@ public class KafkaTopicConfig {
     public static final String UPDATE_PAYMENT_STATUS_TRAIN_TRANSACTION = "update-payment-status-train-transaction";
 
     @Bean
-    public NewTopic updateOrderStatusAirlinesTransaction() {
+    public NewTopic updateOrderStatusTrainTransaction() {
         return TopicBuilder.name(UPDATE_ORDER_STATUS_TRAIN_TRANSACTION).build();
     }
 
     @Bean
-    public NewTopic updateStatusPaymentAirlinesTransaction() {
+    public NewTopic updateStatusPaymentTrainTransaction() {
         return TopicBuilder.name(UPDATE_PAYMENT_STATUS_TRAIN_TRANSACTION).build();
     }
 }

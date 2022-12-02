@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import id.holigo.services.common.model.*;
 import id.holigo.services.holigotrainservice.components.Fare;
 import id.holigo.services.holigotrainservice.config.FeeConfig;
+import id.holigo.services.holigotrainservice.config.KafkaTopicConfig;
 import id.holigo.services.holigotrainservice.domain.*;
 import id.holigo.services.holigotrainservice.events.OrderStatusEvent;
 import id.holigo.services.holigotrainservice.repositories.TrainAvailabilityRepository;
@@ -22,6 +23,7 @@ import id.holigo.services.holigotrainservice.web.model.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -60,6 +62,8 @@ public class TrainServiceImpl implements TrainService {
     private TrainTransactionTripRepository trainTransactionTripRepository;
 
     private TransactionService transactionService;
+
+    private KafkaTemplate<String, TrainTransactionDtoForUser> trainKafkaTemplate;
 
     @Autowired
     public void setTransactionService(TransactionService transactionService) {
@@ -216,6 +220,10 @@ public class TrainServiceImpl implements TrainService {
                         .orderStatus(OrderStatusEnum.ISSUED)
                         .id(trainTransaction.getTransactionId()).build());
             }
+        } else {
+            trainKafkaTemplate.send(KafkaTopicConfig.UPDATE_ORDER_STATUS_TRAIN_TRANSACTION, TrainTransactionDtoForUser.builder()
+                    .id(trainTransaction.getId())
+                    .orderStatus(OrderStatusEnum.ISSUED_FAILED).build());
         }
     }
 
