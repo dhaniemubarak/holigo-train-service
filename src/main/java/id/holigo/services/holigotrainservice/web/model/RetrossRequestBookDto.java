@@ -75,7 +75,7 @@ public class RetrossRequestBookDto implements Serializable {
                     }
                     if (passengerDto.getPassport() != null) {
                         map.put("idadt_" + adultCounter.get(), passengerDto.getIdentityCard().getIdCardNumber());
-                        map.put("idtypeadt_" + adultCounter.get(), "2");
+                        map.put("idtypeadt_" + adultCounter.get(), "4");
                     }
                     adultCounter.getAndIncrement();
                 }
@@ -88,7 +88,7 @@ public class RetrossRequestBookDto implements Serializable {
                     }
                     if (passengerDto.getPassport() != null) {
                         map.put("idadt_" + childCounter.get(), passengerDto.getIdentityCard().getIdCardNumber());
-                        map.put("idtypechd_" + childCounter.get(), "2");
+                        map.put("idtypechd_" + childCounter.get(), "4");
                     }
                 }
                 case INFANT -> {
@@ -100,7 +100,7 @@ public class RetrossRequestBookDto implements Serializable {
                     }
                     if (passengerDto.getPassport() != null) {
                         map.put("idinf_" + infantCounter.get(), passengerDto.getIdentityCard().getIdCardNumber());
-                        map.put("idtypeinf_" + infantCounter.get(), "2");
+                        map.put("idtypeinf_" + infantCounter.get(), "4");
                     }
                 }
             }
