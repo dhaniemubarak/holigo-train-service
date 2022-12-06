@@ -2,7 +2,7 @@ package id.holigo.services.holigotrainservice.web.mappers;
 
 
 import id.holigo.services.holigotrainservice.domain.TrainTransactionTripPassenger;
-import id.holigo.services.holigotrainservice.web.model.TrainTransactionTripPassengerDto;
+import id.holigo.services.common.model.TrainTransactionTripPassengerDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

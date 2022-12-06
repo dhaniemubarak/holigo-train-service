@@ -1,6 +1,6 @@
 package id.holigo.services.holigotrainservice.config;
 
-import id.holigo.services.holigotrainservice.web.model.TrainTransactionDto;
+import id.holigo.services.common.model.TrainTransactionDto;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Value;

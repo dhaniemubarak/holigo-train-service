@@ -1,6 +1,7 @@
-package id.holigo.services.holigotrainservice.web.model;
+package id.holigo.services.common.model;
 
 import id.holigo.services.holigotrainservice.domain.Passenger;
+import id.holigo.services.holigotrainservice.web.model.PassengerDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

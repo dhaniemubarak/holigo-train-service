@@ -1,5 +1,6 @@
 package id.holigo.services.holigotrainservice.web.mappers;
 
+import id.holigo.services.common.model.TrainTransactionDtoForUser;
 import id.holigo.services.common.model.TransactionDto;
 import id.holigo.services.common.model.UserDtoForUser;
 import id.holigo.services.holigotrainservice.domain.TrainTransaction;

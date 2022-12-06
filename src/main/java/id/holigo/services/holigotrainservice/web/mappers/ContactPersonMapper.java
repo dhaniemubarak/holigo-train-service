@@ -1,7 +1,7 @@
 package id.holigo.services.holigotrainservice.web.mappers;
 
 import id.holigo.services.holigotrainservice.domain.ContactPerson;
-import id.holigo.services.holigotrainservice.web.model.ContactPersonDto;
+import id.holigo.services.common.model.ContactPersonDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

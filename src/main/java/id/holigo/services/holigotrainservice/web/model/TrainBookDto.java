@@ -1,5 +1,6 @@
 package id.holigo.services.holigotrainservice.web.model;
 
+import id.holigo.services.common.model.ContactPersonDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

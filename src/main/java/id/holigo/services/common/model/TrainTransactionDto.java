@@ -1,8 +1,4 @@
-package id.holigo.services.holigotrainservice.web.model;
-
-import id.holigo.services.common.model.OrderStatusEnum;
-import id.holigo.services.common.model.PaymentStatusEnum;
-import id.holigo.services.common.model.TripType;
+package id.holigo.services.common.model;
 import id.holigo.services.holigotrainservice.domain.TrainTransactionTrip;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

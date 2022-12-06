@@ -1,5 +1,6 @@
 package id.holigo.services.holigotrainservice.web.model;
 
+import id.holigo.services.common.model.TrainTransactionTripDtoForUser;
 import lombok.*;
 
 import java.io.Serializable;

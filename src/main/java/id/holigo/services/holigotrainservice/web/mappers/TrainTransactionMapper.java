@@ -4,7 +4,7 @@ package id.holigo.services.holigotrainservice.web.mappers;
 import id.holigo.services.common.model.TransactionDto;
 import id.holigo.services.holigotrainservice.domain.TrainTransaction;
 import id.holigo.services.holigotrainservice.web.model.RetrossRequestBookDto;
-import id.holigo.services.holigotrainservice.web.model.TrainTransactionDtoForUser;
+import id.holigo.services.common.model.TrainTransactionDtoForUser;
 import org.mapstruct.DecoratedWith;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

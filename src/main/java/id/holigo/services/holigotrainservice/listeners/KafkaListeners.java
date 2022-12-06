@@ -12,8 +12,8 @@ import id.holigo.services.holigotrainservice.services.OrderTrainTransactionServi
 import id.holigo.services.holigotrainservice.services.PaymentTrainTransactionService;
 import id.holigo.services.holigotrainservice.services.TrainService;
 import id.holigo.services.holigotrainservice.services.transaction.TransactionService;
-import id.holigo.services.holigotrainservice.web.model.TrainTransactionDto;
-import id.holigo.services.holigotrainservice.web.model.TrainTransactionDtoForUser;
+import id.holigo.services.common.model.TrainTransactionDto;
+import id.holigo.services.common.model.TrainTransactionDtoForUser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;

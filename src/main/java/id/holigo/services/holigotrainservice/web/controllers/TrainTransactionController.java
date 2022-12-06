@@ -2,6 +2,8 @@ package id.holigo.services.holigotrainservice.web.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import id.holigo.services.common.model.OrderStatusEnum;
+import id.holigo.services.common.model.TrainTransactionDtoForUser;
+import id.holigo.services.common.model.TrainTransactionTripDtoForUser;
 import id.holigo.services.common.model.TripType;
 import id.holigo.services.holigotrainservice.domain.TrainTransaction;
 import id.holigo.services.holigotrainservice.repositories.TrainTransactionRepository;

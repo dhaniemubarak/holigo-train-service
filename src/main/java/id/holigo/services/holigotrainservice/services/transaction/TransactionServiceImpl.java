@@ -4,11 +4,10 @@ package id.holigo.services.holigotrainservice.services.transaction;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import id.holigo.services.common.model.TransactionDto;
-import id.holigo.services.events.TransactionEvent;
+import id.holigo.services.common.events.TransactionEvent;
 import id.holigo.services.holigotrainservice.config.JmsConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
 

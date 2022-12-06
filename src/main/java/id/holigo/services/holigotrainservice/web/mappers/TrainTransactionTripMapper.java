@@ -3,7 +3,7 @@ package id.holigo.services.holigotrainservice.web.mappers;
 import id.holigo.services.holigotrainservice.domain.TrainFinalFareTrip;
 import id.holigo.services.holigotrainservice.domain.TrainTransactionTrip;
 import id.holigo.services.holigotrainservice.web.model.SeatMapDto;
-import id.holigo.services.holigotrainservice.web.model.TrainTransactionTripDtoForUser;
+import id.holigo.services.common.model.TrainTransactionTripDtoForUser;
 import org.mapstruct.DecoratedWith;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

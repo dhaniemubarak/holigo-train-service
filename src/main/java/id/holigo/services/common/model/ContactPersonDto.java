@@ -1,4 +1,4 @@
-package id.holigo.services.holigotrainservice.web.model;
+package id.holigo.services.common.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

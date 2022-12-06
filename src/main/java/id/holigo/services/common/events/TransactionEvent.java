@@ -1,4 +1,4 @@
-package id.holigo.services.events;
+package id.holigo.services.common.events;
 
 import id.holigo.services.common.model.TransactionDto;
 import lombok.Builder;
