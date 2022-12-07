@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -74,7 +73,7 @@ public class RetrossRequestBookDto implements Serializable {
                         map.put("idtypeadt_" + adultCounter.get(), "1");
                     }
                     if (passengerDto.getPassport() != null) {
-                        map.put("idadt_" + adultCounter.get(), passengerDto.getIdentityCard().getIdCardNumber());
+                        map.put("idadt_" + adultCounter.get(), passengerDto.getPassport().getPassportNumber());
                         map.put("idtypeadt_" + adultCounter.get(), "4");
                     }
                     adultCounter.getAndIncrement();
@@ -87,7 +86,7 @@ public class RetrossRequestBookDto implements Serializable {
                         map.put("idtypechd_" + childCounter.get(), "1");
                     }
                     if (passengerDto.getPassport() != null) {
-                        map.put("idadt_" + childCounter.get(), passengerDto.getIdentityCard().getIdCardNumber());
+                        map.put("idadt_" + childCounter.get(), passengerDto.getPassport().getPassportNumber());
                         map.put("idtypechd_" + childCounter.get(), "4");
                     }
                 }
@@ -99,7 +98,7 @@ public class RetrossRequestBookDto implements Serializable {
                         map.put("idtypeinf_" + infantCounter.get(), "1");
                     }
                     if (passengerDto.getPassport() != null) {
-                        map.put("idinf_" + infantCounter.get(), passengerDto.getIdentityCard().getIdCardNumber());
+                        map.put("idinf_" + infantCounter.get(), passengerDto.getPassport().getPassportNumber());
                         map.put("idtypeinf_" + infantCounter.get(), "4");
                     }
                 }
