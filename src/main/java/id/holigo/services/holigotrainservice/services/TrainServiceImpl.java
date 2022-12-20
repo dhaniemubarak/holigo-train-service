@@ -8,10 +8,7 @@ import id.holigo.services.holigotrainservice.config.FeeConfig;
 import id.holigo.services.holigotrainservice.config.KafkaTopicConfig;
 import id.holigo.services.holigotrainservice.domain.*;
 import id.holigo.services.holigotrainservice.events.OrderStatusEvent;
-import id.holigo.services.holigotrainservice.repositories.TrainAvailabilityRepository;
-import id.holigo.services.holigotrainservice.repositories.TrainFinalFareRepository;
-import id.holigo.services.holigotrainservice.repositories.TrainTransactionTripPassengerRepository;
-import id.holigo.services.holigotrainservice.repositories.TrainTransactionTripRepository;
+import id.holigo.services.holigotrainservice.repositories.*;
 import id.holigo.services.holigotrainservice.services.retross.RetrossTrainService;
 import id.holigo.services.holigotrainservice.services.transaction.TransactionService;
 import id.holigo.services.holigotrainservice.web.exceptions.BookException;
@@ -63,7 +60,14 @@ public class TrainServiceImpl implements TrainService {
 
     private TransactionService transactionService;
 
+    private TrainTransactionRepository trainTransactionRepository;
+
     private KafkaTemplate<String, TrainTransactionDtoForUser> trainKafkaTemplate;
+
+    @Autowired
+    public void setTrainTransactionRepository(TrainTransactionRepository trainTransactionRepository) {
+        this.trainTransactionRepository = trainTransactionRepository;
+    }
 
     @Autowired
     public void setTransactionService(TransactionService transactionService) {
@@ -180,6 +184,8 @@ public class TrainServiceImpl implements TrainService {
         } else {
             orderTrainTransactionService.booked(trainTransaction.getId());
         }
+        List<String> supplierTransactionIds = new ArrayList<>();
+        List<String> bookCodes = new ArrayList<>();
         for (TrainTransactionTrip trainTransactionTrip : trainTransaction.getTrips()) {
             AtomicInteger passengerCounter = new AtomicInteger();
             for (TrainTransactionTripPassenger trainTransactionTripPassenger : trainTransactionTripPassengerRepository.findAllByTripIdOrderBySortAsc(trainTransactionTrip.getId())) {
@@ -200,9 +206,14 @@ public class TrainServiceImpl implements TrainService {
             trainTransactionTrip.setBookCode(
                     (tripCounter.get() == 0) ? retrossResponseBookDto.getBookCodeDeparture()
                             : retrossResponseBookDto.getBookCodeReturn());
+            supplierTransactionIds.add(trainTransactionTrip.getSupplierTransactionId());
+            bookCodes.add(trainTransactionTrip.getBookCode());
             trainTransactionTripRepository.save(trainTransactionTrip);
             tripCounter.getAndIncrement();
         }
+        trainTransaction.setIndexProduct(trainTransaction.getIndexProduct() + String.join(",", bookCodes));
+        trainTransaction.setSupplierTransactionId(String.join(",", supplierTransactionIds));
+        trainTransactionRepository.save(trainTransaction);
     }
 
     @Override
@@ -288,6 +299,9 @@ public class TrainServiceImpl implements TrainService {
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);
             }
+            trainFinalFareTrip.setAdultAmount(trainFinalFare.getInquiry().getAdultAmount());
+            trainFinalFareTrip.setChildAmount(trainFinalFare.getInquiry().getChildAmount());
+            trainFinalFareTrip.setInfantAmount(trainFinalFare.getInquiry().getInfantAmount());
             trainFinalFareTrip.setSupplierId(trainAvailabilityFareDto.getSelectedId());
             trainFinalFareTrip.setFareAmount(trainAvailabilityFareDto.getFareAmount());
             trainFinalFareTrip.setAdminAmount(FeeConfig.ADMIN_AMOUNT);

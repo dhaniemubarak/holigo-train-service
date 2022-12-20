@@ -103,6 +103,19 @@ public class TrainTransaction {
     @UpdateTimestamp
     private Timestamp updatedAt;
 
+    @Lob
+    private String indexUser;
+
+    @Lob
+    private String indexProduct;
+
+    @Lob
+    private String indexPassenger;
+
+    private String supplierTransactionId;
+
+    private String invoiceNumber;
+
     public void addTrip(TrainTransactionTrip trainTransactionTrip) {
         trainTransactionTrip.setTransaction(this);
         this.trips.add(trainTransactionTrip);

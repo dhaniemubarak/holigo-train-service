@@ -70,17 +70,19 @@ public abstract class TrainTransactionMapperDecorator implements TrainTransactio
     public TransactionDto trainTransactionToTransactionDto(TrainTransaction trainTransaction) {
         TransactionDto transactionDto = trainTransactionMapper.trainTransactionToTransactionDto(trainTransaction);
         UserDtoForUser userDtoForUser = userService.getUser(trainTransaction.getUserId());
-        TrainTransactionTrip trainTransactionTrip = trainTransaction.getTrips().get(0);
+//        TrainTransactionTrip trainTransactionTrip = trainTransaction.getTrips().get(0);
         transactionDto.setTransactionType("TRAIN");
         transactionDto.setServiceId(3);
         transactionDto.setProductId(3);
         transactionDto.setPointAmount(BigDecimal.valueOf(0.0));
         transactionDto.setTransactionId(trainTransaction.getId().toString());
-        transactionDto.setIndexProduct(trainTransaction.getTripType().toString() + "|"
-                + trainTransactionTrip.getOriginStation().getCity() + " - "
-                + trainTransactionTrip.getDestinationStation().getCity() + "|"
-                + trainTransactionTrip.getDepartureDate().toString() + " " + trainTransactionTrip.getDepartureTime());
-        transactionDto.setIndexUser(userDtoForUser.getName() + "|" + userDtoForUser.getPhoneNumber() + "|" + userDtoForUser.getEmail());
+        transactionDto.setIndexUser(trainTransaction.getIndexUser());
+        transactionDto.setIndexProduct(trainTransaction.getIndexProduct());
+//        transactionDto.setIndexProduct(trainTransaction.getTripType().toString() + "|"
+//                + trainTransactionTrip.getOriginStation().getCity() + " - "
+//                + trainTransactionTrip.getDestinationStation().getCity() + "|"
+//                + trainTransactionTrip.getDepartureDate().toString() + " " + trainTransactionTrip.getDepartureTime());
+//        transactionDto.setIndexUser(userDtoForUser.getName() + "|" + userDtoForUser.getPhoneNumber() + "|" + userDtoForUser.getEmail());
         return transactionDto;
     }
 

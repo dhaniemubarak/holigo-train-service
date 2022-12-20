@@ -44,6 +44,15 @@ public class TrainFinalFareTrip {
     @ManyToOne
     private Station destinationStation;
 
+    @Column(length = 2, columnDefinition = "tinyint(2) default 1", nullable = false)
+    private Integer adultAmount;
+
+    @Column(length = 2, columnDefinition = "tinyint(2) default 1", nullable = false)
+    private Integer childAmount;
+
+    @Column(length = 2, columnDefinition = "tinyint(2) default 1", nullable = false)
+    private Integer infantAmount;
+
     private Date departureDate;
 
     private Time departureTime;
