@@ -116,7 +116,7 @@ public class TrainTransactionController {
                     .build();
             if (trainTransaction.getTripType().equals(TripType.R)) {
                 retrossRequestSeatMapDto.setTgl_ret(trainTransaction.getTrips().get(1).getDepartureDate().toString());
-                retrossRequestSeatMapDto.setSelectedIdRet(trainTransaction.getTrips().get(1).getDepartureDate().toString());
+                retrossRequestSeatMapDto.setSelectedIdRet(trainTransaction.getTrips().get(1).getSupplierSelectedId());
             }
             try {
                 RetrossResponseSeatMapDto retrossResponseSeatMapDto = retrossTrainService.getSeatMap(retrossRequestSeatMapDto, userId);
@@ -171,9 +171,9 @@ public class TrainTransactionController {
         }
 
         if (retrossResponseChangeSeatDto.getError_code().equals("000")) {
-        trainTransactionTripDtoForUsers.forEach(trainTransactionTripDtoForUser -> trainTransactionTripDtoForUser.getPassengers().forEach(passengerDto -> trainTransactionTripPassengerRepository.updateSeatPassenger(passengerDto.getId(), passengerDto.getSeatNumber()))
-        );
-        return new ResponseEntity<>(trainTransactionTripDtoForUsers, HttpStatus.OK);
+            trainTransactionTripDtoForUsers.forEach(trainTransactionTripDtoForUser -> trainTransactionTripDtoForUser.getPassengers().forEach(passengerDto -> trainTransactionTripPassengerRepository.updateSeatPassenger(passengerDto.getId(), passengerDto.getSeatNumber()))
+            );
+            return new ResponseEntity<>(trainTransactionTripDtoForUsers, HttpStatus.OK);
         }
 
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

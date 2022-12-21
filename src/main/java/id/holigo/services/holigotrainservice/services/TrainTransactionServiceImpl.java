@@ -151,7 +151,7 @@ public class TrainTransactionServiceImpl implements TrainTransactionService {
         List<Passenger> passengers = trainBookDto.getPassengers().stream()
                 .map(passengerMapper::passengerDtoToPassenger).toList();
         Iterable<Passenger> savedPassengers = passengerRepository.saveAll(passengers);
-       // End of create passenger
+        // End of create passenger
         List<String> stringPassenger = new ArrayList<>();
         passengers.forEach(passenger -> {
             String type;
@@ -175,16 +175,19 @@ public class TrainTransactionServiceImpl implements TrainTransactionService {
         trainTransaction.setPaymentStatus(PaymentStatusEnum.SELECTING_PAYMENT);
         // CREATE INDEX PRODUCT
         if (trainTransaction.getTripType().equals(TripType.O)) {
+            String trainClass = getTrainClass(trainFinalFare.getTrips().get(0).getTrainClass());
             indexProduct = trainTransaction.getTripType().toString() + "|"
                     + trainFinalFare.getTrips().get(0).getOriginStation().getCity() + " - " + trainFinalFare.getTrips().get(0).getDestinationStation().getCity() + "|"
                     + trainFinalFare.getTrips().get(0).getDepartureDate().toString() + " " + trainFinalFare.getTrips().get(0).getDepartureTime().toString() + "|"
-                    + trainFinalFare.getTrips().get(0).getTrainName() + " (" + trainFinalFare.getTrips().get(0).getTrainNumber() + ")" + "|"
+                    + trainFinalFare.getTrips().get(0).getTrainName() + " (" + trainFinalFare.getTrips().get(0).getTrainNumber() + ")" + " - " + trainClass + "|"
                     + trainFinalFare.getTrips().get(0).getAdultAmount() + "," + trainFinalFare.getTrips().get(0).getChildAmount() + "," + trainFinalFare.getTrips().get(0).getInfantAmount() + "|";
         } else {
+            String departureTrainClass = getTrainClass(trainFinalFare.getTrips().get(0).getTrainClass());
+            String returnTrainClass = getTrainClass(trainFinalFare.getTrips().get(1).getTrainClass());
             indexProduct = trainTransaction.getTripType().toString() + "|"
                     + trainFinalFare.getTrips().get(0).getOriginStation().getCity() + " - " + trainFinalFare.getTrips().get(0).getDestinationStation().getCity() + "|"
                     + trainFinalFare.getTrips().get(0).getDepartureDate().toString() + " " + trainFinalFare.getTrips().get(0).getDepartureTime().toString() + "," + trainFinalFare.getTrips().get(1).getDepartureDate().toString() + " " + trainFinalFare.getTrips().get(1).getDepartureTime().toString() + "|"
-                    + trainFinalFare.getTrips().get(0).getTrainName() + " (" + trainFinalFare.getTrips().get(0).getTrainNumber() + ")" + "," + trainFinalFare.getTrips().get(1).getTrainName() + " (" + trainFinalFare.getTrips().get(1).getTrainNumber() + ")" + "|"
+                    + trainFinalFare.getTrips().get(0).getTrainName() + " (" + trainFinalFare.getTrips().get(0).getTrainNumber() + ")" + " - " + departureTrainClass + "," + trainFinalFare.getTrips().get(1).getTrainName() + " (" + trainFinalFare.getTrips().get(1).getTrainNumber() + ")" + " - " + returnTrainClass + "|"
                     + trainFinalFare.getTrips().get(0).getAdultAmount() + "," + trainFinalFare.getTrips().get(0).getChildAmount() + "," + trainFinalFare.getTrips().get(0).getInfantAmount() + "|";
         }
         trainTransaction.setIndexProduct(indexProduct);
@@ -225,6 +228,18 @@ public class TrainTransactionServiceImpl implements TrainTransactionService {
             throw new RuntimeException(e);
         }
         return savedTrainTransaction;
+    }
+
+    private String getTrainClass(String classCode) {
+        String trainClass;
+        switch (classCode) {
+            case "EKO" -> trainClass = "Ekonomi";
+            case "BIS" -> trainClass = "Bisnis";
+            case "EKS" -> trainClass = "Eksekutif";
+            case "LUX" -> trainClass = "Luxury";
+            default -> trainClass = classCode;
+        }
+        return trainClass;
     }
 
     @Override
