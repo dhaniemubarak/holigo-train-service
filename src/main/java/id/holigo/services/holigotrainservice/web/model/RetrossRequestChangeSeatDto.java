@@ -1,5 +1,6 @@
 package id.holigo.services.holigotrainservice.web.model;
 
+import id.holigo.services.common.model.PassengerType;
 import id.holigo.services.common.model.TrainTransactionTripDtoForUser;
 import lombok.*;
 
@@ -48,12 +49,15 @@ public class RetrossRequestChangeSeatDto implements Serializable {
         getTrips().forEach(trainTransactionTripDtoForUser -> {
             AtomicInteger passengerIndex = new AtomicInteger(1);
             trainTransactionTripDtoForUser.getPassengers().forEach(trainTransactionTripPassengerDto -> {
-                if (indexTrip.get() == 0) {
-                    map.put("seatadt_" + passengerIndex, trainTransactionTripPassengerDto.getSeatNumber());
-                } else {
-                    map.put("seatadt_" + passengerIndex, map.get("seatadt_" + passengerIndex) + "," + trainTransactionTripPassengerDto.getSeatNumber());
+                if (trainTransactionTripPassengerDto.getPassenger().getType().equals(PassengerType.ADULT)) {
+                    if (indexTrip.get() == 0) {
+                        map.put("seatadt_" + passengerIndex, trainTransactionTripPassengerDto.getSeatNumber());
+                    } else {
+                        map.put("seatadt_" + passengerIndex, map.get("seatadt_" + passengerIndex) + "," + trainTransactionTripPassengerDto.getSeatNumber());
+                    }
+                    passengerIndex.getAndIncrement();
                 }
-                passengerIndex.getAndIncrement();
+
             });
             indexTrip.getAndIncrement();
         });
