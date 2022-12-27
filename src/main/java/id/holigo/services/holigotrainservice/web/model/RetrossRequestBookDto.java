@@ -89,6 +89,7 @@ public class RetrossRequestBookDto implements Serializable {
                         map.put("idadt_" + childCounter.get(), passengerDto.getPassport().getPassportNumber());
                         map.put("idtypechd_" + childCounter.get(), "4");
                     }
+                    childCounter.getAndIncrement();
                 }
                 case INFANT -> {
                     map.put("nminf_" + infantCounter.get(), passengerDto.getName());
@@ -101,6 +102,7 @@ public class RetrossRequestBookDto implements Serializable {
                         map.put("idinf_" + infantCounter.get(), passengerDto.getPassport().getPassportNumber());
                         map.put("idtypeinf_" + infantCounter.get(), "4");
                     }
+                    infantCounter.getAndIncrement();
                 }
             }
         }

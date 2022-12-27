@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -88,24 +89,25 @@ public abstract class TrainTransactionMapperDecorator implements TrainTransactio
 
     @Override
     public RetrossRequestBookDto trainTransactionToRetrossRequestBookDto(TrainTransaction trainTransaction) {
+        List<TrainTransactionTrip> trips = trainTransaction.getTrips();
         RetrossRequestBookDto retrossRequestBookDto = new RetrossRequestBookDto();
-        retrossRequestBookDto.setAdt(trainTransaction.getTrips().get(0).getAdultAmount());
-        retrossRequestBookDto.setChd(trainTransaction.getTrips().get(0).getChildAmount());
-        retrossRequestBookDto.setInf(trainTransaction.getTrips().get(0).getInfantAmount());
+        retrossRequestBookDto.setAdt(trips.get(0).getAdultAmount());
+        retrossRequestBookDto.setChd(trips.get(0).getChildAmount());
+        retrossRequestBookDto.setInf(trips.get(0).getInfantAmount());
         retrossRequestBookDto.setCpname(trainTransaction.getContactPerson().getName());
         retrossRequestBookDto.setCpmail(trainTransaction.getContactPerson().getEmail());
         retrossRequestBookDto.setCptlp(trainTransaction.getContactPerson().getPhoneNumber());
-        retrossRequestBookDto.setOrg(trainTransaction.getTrips().get(0).getOriginStation().getId());
-        retrossRequestBookDto.setDes(trainTransaction.getTrips().get(0).getDestinationStation().getId());
+        retrossRequestBookDto.setOrg(trips.get(0).getOriginStation().getId());
+        retrossRequestBookDto.setDes(trips.get(0).getDestinationStation().getId());
         retrossRequestBookDto.setTrip(trainTransaction.getTripType().toString());
-        retrossRequestBookDto.setTgl_dep(trainTransaction.getTrips().get(0).getDepartureDate().toString());
-        retrossRequestBookDto.setSelectedIdDep(trainTransaction.getTrips().get(0).getSupplierSelectedId());
+        retrossRequestBookDto.setTgl_dep(trips.get(0).getDepartureDate().toString());
+        retrossRequestBookDto.setSelectedIdDep(trips.get(0).getSupplierSelectedId());
         if (retrossRequestBookDto.getTrip().equals("R")) {
-            retrossRequestBookDto.setTgl_ret(trainTransaction.getTrips().get(1).getDepartureDate().toString());
-            retrossRequestBookDto.setSelectedIdRet(trainTransaction.getTrips().get(1).getSupplierSelectedId());
+            retrossRequestBookDto.setTgl_ret(trips.get(1).getDepartureDate().toString());
+            retrossRequestBookDto.setSelectedIdRet(trips.get(1).getSupplierSelectedId());
         }
         retrossRequestBookDto.setPassengers(
-                trainTransactionTripPassengerRepository.findAllByTripIdOrderBySortAsc(trainTransaction.getTrips().get(0).getId()).stream().map(passengerMapper::trainTransactionTripPassengerToPassengerDto).collect(Collectors.toList()));
+                trainTransactionTripPassengerRepository.findAllByTripIdOrderBySortAsc(trips.get(0).getId()).stream().map(passengerMapper::trainTransactionTripPassengerToPassengerDto).collect(Collectors.toList()));
         return retrossRequestBookDto;
     }
 }
