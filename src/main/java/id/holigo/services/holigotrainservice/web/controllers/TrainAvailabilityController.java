@@ -92,7 +92,7 @@ public class TrainAvailabilityController {
         } catch (JsonProcessingException e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        if (listAvailabilityDto.getDepartures() == null) {
+        if (listAvailabilityDto == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(listAvailabilityDto, HttpStatus.OK);

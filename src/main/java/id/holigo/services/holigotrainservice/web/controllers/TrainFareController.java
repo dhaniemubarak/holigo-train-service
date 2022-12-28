@@ -6,6 +6,7 @@ import id.holigo.services.holigotrainservice.services.TrainService;
 import id.holigo.services.holigotrainservice.web.mappers.TrainFinalFareMapper;
 import id.holigo.services.holigotrainservice.web.model.RequestFinalFareDto;
 import id.holigo.services.holigotrainservice.web.model.TrainFinalFareDto;
+import id.holigo.services.holigotrainservice.web.model.TrainFinalFareTripDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -14,7 +15,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.Comparator;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -57,6 +61,9 @@ public class TrainFareController {
 
     @GetMapping(PATH + "/{id}")
     public ResponseEntity<TrainFinalFareDto> getFare(@PathVariable("id") UUID id) {
-        return new ResponseEntity<>(trainFinalFareMapper.trainFinalFareToTrainFinalFareDto(trainFinalFareRepository.getReferenceById(id)), HttpStatus.OK);
+        TrainFinalFareDto trainFinalFareDto = trainFinalFareMapper.trainFinalFareToTrainFinalFareDto(trainFinalFareRepository.getReferenceById(id));
+        List<TrainFinalFareTripDto> trips = trainFinalFareDto.getTrips().stream().sorted(Comparator.comparing(TrainFinalFareTripDto::getSegment)).toList();
+        trainFinalFareDto.setTrips(trips);
+        return new ResponseEntity<>(trainFinalFareDto, HttpStatus.OK);
     }
 }

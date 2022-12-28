@@ -284,15 +284,21 @@ public class TrainServiceImpl implements TrainService {
                 .add(fareDto.getHpcAmount())
                 .add(fareDto.getPrcAmount()));
         trainFinalFare.setFareAmount(trainFinalFare.getAdminAmount());
-        AtomicInteger segment = new AtomicInteger(1);
         for (TripDto tripDto : requestFinalFareDto.getTrips()) {
+            int segment;
+            if (tripDto.getTrip().getOriginStation().getId().equals(tripDto.getInquiry().getOriginStationId())) {
+                segment = 1;
+            } else {
+                segment = 2;
+            }
             Optional<TrainAvailability> fetchTrainAvailability = trainAvailabilityRepository.findById(tripDto.getTrip().getId());
             if (fetchTrainAvailability.isEmpty()) {
                 throw new FinalFareBadRequestException();
             }
             TrainAvailability trainAvailability = fetchTrainAvailability.get();
             TrainFinalFareTrip trainFinalFareTrip = trainAvailabilityMapper.trainAvailabilityToTrainFinalFareTrip(trainAvailability);
-            trainFinalFareTrip.setSegment(segment.get());
+
+            trainFinalFareTrip.setSegment(segment);
             TrainAvailabilityFareDto trainAvailabilityFareDto;
             try {
                 trainAvailabilityFareDto = objectMapper.readValue(trainAvailability.getFare(), TrainAvailabilityFareDto.class);
@@ -330,7 +336,6 @@ public class TrainServiceImpl implements TrainService {
             trainFinalFare.setNtaAmount(trainFinalFare.getNtaAmount().add(trainFinalFareTrip.getFareAmount()));
             trainFinalFare.setFareAmount(trainFinalFare.getFareAmount().add(trainFinalFareTrip.getFareAmount()));
             trainFinalFare.addToTrips(trainFinalFareTrip);
-            segment.getAndIncrement();
         }
         return trainFinalFareRepository.save(trainFinalFare);
     }

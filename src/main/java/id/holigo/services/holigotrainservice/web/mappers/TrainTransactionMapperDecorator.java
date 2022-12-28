@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -89,7 +90,7 @@ public abstract class TrainTransactionMapperDecorator implements TrainTransactio
 
     @Override
     public RetrossRequestBookDto trainTransactionToRetrossRequestBookDto(TrainTransaction trainTransaction) {
-        List<TrainTransactionTrip> trips = trainTransaction.getTrips();
+        List<TrainTransactionTrip> trips = trainTransaction.getTrips().stream().sorted(Comparator.comparing(TrainTransactionTrip::getSegment)).toList();
         RetrossRequestBookDto retrossRequestBookDto = new RetrossRequestBookDto();
         retrossRequestBookDto.setAdt(trips.get(0).getAdultAmount());
         retrossRequestBookDto.setChd(trips.get(0).getChildAmount());
