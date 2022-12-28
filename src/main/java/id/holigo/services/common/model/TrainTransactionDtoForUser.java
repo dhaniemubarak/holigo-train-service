@@ -38,6 +38,8 @@ public class TrainTransactionDtoForUser implements Serializable {
 
     private BigDecimal fareAmount;
 
+    private BigDecimal billAmount;
+
     private BigDecimal adminAmount;
 
     private BigDecimal discountAmount;
